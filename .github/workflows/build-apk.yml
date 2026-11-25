@@ -1,1 +1,39 @@
+name: Build FoxWidget v3.0 Liquid Glass APK
 
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android 16/17 SDK Platform 36
+        run: sdkmanager "platforms;android-36" "build-tools;35.0.0"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+
+      - name: Build Debug APK
+        run: gradle assembleDebug
+
+      - name: Upload FoxWidget v3.0 Liquid Glass APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: FoxWidget-v3.0-LiquidGlass-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
