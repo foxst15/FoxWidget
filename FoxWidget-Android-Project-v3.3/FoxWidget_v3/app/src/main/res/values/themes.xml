@@ -1,0 +1,11 @@
+<resources>
+    <style name="Theme.FoxWidget" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">#3B5BDB</item>
+        <item name="colorPrimaryVariant">#2B44B8</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+</resources>
