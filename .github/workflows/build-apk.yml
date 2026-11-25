@@ -30,10 +30,11 @@ jobs:
           gradle-version: '8.11.1'
 
       - name: Build Debug APK
+        working-directory: FoxWidget-Android-Project-v3.3/FoxWidget_v3
         run: gradle assembleDebug
 
       - name: Upload FoxWidget v3.0 Liquid Glass APK
         uses: actions/upload-artifact@v4
         with:
           name: FoxWidget-v3.0-LiquidGlass-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: FoxWidget-Android-Project-v3.3/FoxWidget_v3/app/build/outputs/apk/debug/app-debug.apk
