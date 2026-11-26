@@ -13,7 +13,7 @@
 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="FoxWidget" android:textColor="#FFFFFF" android:textSize="22sp" android:textStyle="bold" />
 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Liquid Glass · Lịch Việt · Realtime" android:textColor="#E9E1FF" android:textSize="12sp" android:layout_marginTop="2dp" />
 </LinearLayout>
-<TextView android:id="@+id/tv_header_version" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="v3.1" android:textColor="#FFFFFF" android:textSize="12.5sp" android:textStyle="bold" android:background="@drawable/bg_version_pill" android:paddingHorizontal="12dp" android:paddingVertical="6dp" />
+<TextView android:id="@+id/tv_header_version" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="v1.3" android:textColor="#FFFFFF" android:textSize="12.5sp" android:textStyle="bold" android:background="@drawable/bg_version_pill" android:paddingHorizontal="12dp" android:paddingVertical="6dp" />
 </LinearLayout>
 </FrameLayout>
 
@@ -212,18 +212,90 @@
 <com.google.android.material.button.MaterialButton android:id="@+id/btn_reset_defaults" style="@style/Fox.Button.Tonal" android:layout_width="match_parent" android:layout_height="46dp" android:layout_marginTop="14dp" android:text="Đặt lại mặc định" android:textSize="14sp" app:icon="@drawable/ic_refresh" app:iconGravity="textStart" app:iconPadding="8dp" app:iconSize="18dp" />
 </LinearLayout>
 </LinearLayout>
-<LinearLayout android:id="@+id/page_widget" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/bg_card_white" android:orientation="vertical" android:padding="18dp" android:visibility="gone">
+<LinearLayout android:id="@+id/page_widget_island" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+<LinearLayout android:id="@+id/page_widget" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/bg_card_white" android:orientation="vertical" android:padding="18dp">
 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="THÊM FOXWIDGET RA MÀN HÌNH CHÍNH" android:textColor="@color/fox_text_sub" android:textSize="11.5sp" android:textStyle="bold" android:letterSpacing="0.06" />
 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tự co giãn từ 4x1 thu gọn đến 4x2 / 5x2 đầy đủ trên mọi launcher. Chạm biểu tượng làm mới trên widget để cập nhật thời tiết và nhiệt độ pin ngay lập tức." android:textColor="@color/fox_text_sub" android:textSize="13.5sp" android:layout_marginTop="10dp" />
 <com.google.android.material.button.MaterialButton android:id="@+id/btn_pin_widget_home" style="@style/Fox.Button.Filled" android:layout_width="match_parent" android:layout_height="50dp" android:layout_marginTop="16dp" android:text="Thêm FoxWidget ra Màn hình chính" android:textSize="14sp" app:icon="@drawable/ic_grid" app:iconGravity="textStart" app:iconPadding="8dp" app:iconSize="18dp" />
 <com.google.android.material.button.MaterialButton android:id="@+id/btn_force_sync_widget" style="@style/Fox.Button.Tonal" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="8dp" android:text="Làm mới toàn bộ Widget ngay" android:textSize="14sp" app:icon="@drawable/ic_refresh" app:iconGravity="textStart" app:iconPadding="8dp" app:iconSize="18dp" />
+<com.google.android.material.button.MaterialButton android:id="@+id/btn_widget_manual_guide" style="@style/Fox.Button.Tonal" android:layout_width="match_parent" android:layout_height="46dp" android:layout_marginTop="8dp" android:text="Không thấy hộp thoại? Xem cách thêm thủ công" android:textSize="13sp" app:icon="@drawable/ic_info" app:iconGravity="textStart" app:iconPadding="8dp" app:iconSize="18dp"/>
+</LinearLayout>
+<LinearLayout android:id="@+id/page_island" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="12dp">
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="0dp" android:background="@drawable/bg_card_white" android:orientation="vertical" android:padding="16dp">
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="DYNAMIC ISLAND" android:textColor="@color/fox_text_sub" android:textSize="11.5sp" android:textStyle="bold" android:letterSpacing="0.06" />
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:gravity="center_vertical" android:orientation="horizontal">
+<ImageView android:layout_width="40dp" android:layout_height="40dp" android:background="@drawable/bg_icon_tile" android:padding="9dp" android:src="@drawable/ic_island" android:tint="#6C47FF" android:contentDescription="@null"/>
+<LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="12dp" android:orientation="vertical">
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Thông tin nổi ở đỉnh màn hình" android:textColor="@color/fox_text" android:textSize="15sp" android:textStyle="bold" />
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Chạm để mở rộng, chạm ra ngoài để thu gọn. Chạy trên mọi hãng Android." android:textColor="@color/fox_text_sub" android:textSize="12sp" android:layout_marginTop="2dp" />
+</LinearLayout>
+</LinearLayout>
+<com.google.android.material.switchmaterial.SwitchMaterial android:id="@+id/sw_island_enabled" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="46dp" android:layout_marginTop="8dp" android:text="Bật Dynamic Island" android:textColor="@color/fox_text" android:textSize="14sp"/>
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:gravity="center_vertical" android:orientation="horizontal">
+<TextView android:id="@+id/tv_island_perm_status" android:layout_height="wrap_content" android:text="Quyền hiển thị trên ứng dụng khác" android:textColor="@color/fox_text_sub" android:textSize="13sp" android:layout_width="0dp" android:layout_weight="1" />
+<com.google.android.material.button.MaterialButton android:id="@+id/btn_island_permission" style="@style/Fox.Button.Tonal" android:layout_width="wrap_content" android:layout_height="36dp" android:layout_marginStart="10dp" android:minWidth="0dp" android:paddingHorizontal="16dp" android:text="Bật ngay" android:textSize="12.5sp"/>
+</LinearLayout>
+</LinearLayout>
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:background="@drawable/bg_card_white" android:orientation="vertical" android:padding="16dp">
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="THÔNG TIN HIỂN THỊ" android:textColor="@color/fox_text_sub" android:textSize="11.5sp" android:textStyle="bold" android:letterSpacing="0.06" />
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Chọn thông tin muốn hiện. Nếu chọn nhiều mục, viên thuốc sẽ tự luân phiên." android:textColor="@color/fox_text_sub" android:textSize="12.5sp" android:layout_marginTop="6dp" android:layout_marginBottom="4dp" />
+<com.google.android.material.switchmaterial.SwitchMaterial android:id="@+id/sw_island_calendar" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="46dp" android:text="Lịch (dương &amp; âm)" android:textColor="@color/fox_text" android:textSize="14sp"/>
+<com.google.android.material.switchmaterial.SwitchMaterial android:id="@+id/sw_island_weather" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="46dp" android:text="Thời tiết" android:textColor="@color/fox_text" android:textSize="14sp"/>
+<com.google.android.material.switchmaterial.SwitchMaterial android:id="@+id/sw_island_location" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="46dp" android:text="Vị trí" android:textColor="@color/fox_text" android:textSize="14sp"/>
+<com.google.android.material.switchmaterial.SwitchMaterial android:id="@+id/sw_island_battery" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="46dp" android:text="Pin &amp; nhiệt độ" android:textColor="@color/fox_text" android:textSize="14sp"/>
+</LinearLayout>
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:background="@drawable/bg_card_white" android:orientation="vertical" android:padding="16dp">
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="MÀU SẮC &amp; KIỂU NỀN" android:textColor="@color/fox_text_sub" android:textSize="11.5sp" android:textStyle="bold" android:letterSpacing="0.06" />
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Nguồn màu" android:textColor="@color/fox_text" android:textSize="13sp" android:textStyle="bold" android:layout_marginTop="10dp" />
+<LinearLayout android:layout_width="match_parent" android:layout_height="42dp" android:layout_marginTop="6dp" android:background="@drawable/bg_segment_container" android:orientation="horizontal" android:padding="3dp">
+<TextView android:id="@+id/btn_island_mode_system" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:text="Màu hệ thống" android:textColor="@color/fox_text_sub" android:textSize="13sp" android:textStyle="bold"/>
+<TextView android:id="@+id/btn_island_mode_custom" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:text="Tùy chỉnh" android:textColor="@color/fox_text_sub" android:textSize="13sp" android:textStyle="bold"/>
+</LinearLayout>
+<TextView android:id="@+id/tv_island_color_hint" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="" android:textColor="@color/fox_text_sub" android:textSize="12sp" android:layout_marginTop="8dp" />
+<LinearLayout android:id="@+id/ll_island_custom_colors" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Chọn màu" android:textColor="@color/fox_text" android:textSize="13sp" android:textStyle="bold" android:layout_marginTop="12dp" />
+<LinearLayout android:id="@+id/ll_island_swatches" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical"/>
+</LinearLayout>
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Kiểu nền" android:textColor="@color/fox_text" android:textSize="13sp" android:textStyle="bold" android:layout_marginTop="14dp" />
+<LinearLayout android:layout_width="match_parent" android:layout_height="42dp" android:layout_marginTop="6dp" android:background="@drawable/bg_segment_container" android:orientation="horizontal" android:padding="3dp">
+<TextView android:id="@+id/btn_island_style_solid" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:text="Đặc" android:textColor="@color/fox_text_sub" android:textSize="13sp" android:textStyle="bold"/>
+<TextView android:id="@+id/btn_island_style_glass" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:text="Liquid Glass" android:textColor="@color/fox_text_sub" android:textSize="13sp" android:textStyle="bold"/>
+</LinearLayout>
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Liquid Glass: nền trong mờ có ánh bóng và viền sáng, hòa theo màu đã chọn." android:textColor="@color/fox_text_sub" android:textSize="12sp" android:layout_marginTop="8dp" />
+</LinearLayout>
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:background="@drawable/bg_card_white" android:orientation="vertical" android:padding="16dp">
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="VỊ TRÍ &amp; KÍCH THƯỚC" android:textColor="@color/fox_text_sub" android:textSize="11.5sp" android:textStyle="bold" android:letterSpacing="0.06" />
+<TextView android:id="@+id/tv_label_island_y" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Cách mép trên: 6dp" android:textColor="@color/fox_text" android:textSize="13sp" android:textStyle="bold" android:layout_marginTop="8dp" />
+<LinearLayout android:layout_width="match_parent" android:layout_height="40dp" android:layout_marginTop="4dp" android:gravity="center_vertical" android:orientation="horizontal">
+<TextView android:id="@+id/btn_island_y_minus" android:layout_width="34dp" android:layout_height="34dp" android:background="@drawable/bg_stepper_btn" android:gravity="center" android:text="−" android:textColor="#6C47FF" android:textSize="18sp" android:textStyle="bold"/>
+<SeekBar android:id="@+id/seek_island_y" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"/>
+<TextView android:id="@+id/btn_island_y_plus" android:layout_width="34dp" android:layout_height="34dp" android:background="@drawable/bg_stepper_btn" android:gravity="center" android:text="+" android:textColor="#6C47FF" android:textSize="18sp" android:textStyle="bold"/>
+</LinearLayout>
+<TextView android:id="@+id/tv_label_island_x" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Lệch ngang: giữa màn hình" android:textColor="@color/fox_text" android:textSize="13sp" android:textStyle="bold" android:layout_marginTop="10dp" />
+<LinearLayout android:layout_width="match_parent" android:layout_height="40dp" android:layout_marginTop="4dp" android:gravity="center_vertical" android:orientation="horizontal">
+<TextView android:id="@+id/btn_island_x_minus" android:layout_width="34dp" android:layout_height="34dp" android:background="@drawable/bg_stepper_btn" android:gravity="center" android:text="−" android:textColor="#6C47FF" android:textSize="18sp" android:textStyle="bold"/>
+<SeekBar android:id="@+id/seek_island_x" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"/>
+<TextView android:id="@+id/btn_island_x_plus" android:layout_width="34dp" android:layout_height="34dp" android:background="@drawable/bg_stepper_btn" android:gravity="center" android:text="+" android:textColor="#6C47FF" android:textSize="18sp" android:textStyle="bold"/>
+</LinearLayout>
+<TextView android:id="@+id/tv_label_island_scale" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Kích thước: 100%" android:textColor="@color/fox_text" android:textSize="13sp" android:textStyle="bold" android:layout_marginTop="10dp" />
+<LinearLayout android:layout_width="match_parent" android:layout_height="40dp" android:layout_marginTop="4dp" android:gravity="center_vertical" android:orientation="horizontal">
+<TextView android:id="@+id/btn_island_scale_minus" android:layout_width="34dp" android:layout_height="34dp" android:background="@drawable/bg_stepper_btn" android:gravity="center" android:text="−" android:textColor="#6C47FF" android:textSize="18sp" android:textStyle="bold"/>
+<SeekBar android:id="@+id/seek_island_scale" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"/>
+<TextView android:id="@+id/btn_island_scale_plus" android:layout_width="34dp" android:layout_height="34dp" android:background="@drawable/bg_stepper_btn" android:gravity="center" android:text="+" android:textColor="#6C47FF" android:textSize="18sp" android:textStyle="bold"/>
+</LinearLayout>
+<com.google.android.material.button.MaterialButton android:id="@+id/btn_island_preview" style="@style/Fox.Button.Filled" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="16dp" android:text="Xem thử Dynamic Island" android:textSize="14sp" app:icon="@drawable/ic_island" app:iconGravity="textStart" app:iconPadding="8dp" app:iconSize="18dp" />
+<com.google.android.material.button.MaterialButton android:id="@+id/btn_island_reset" style="@style/Fox.Button.Tonal" android:layout_width="match_parent" android:layout_height="46dp" android:layout_marginTop="8dp" android:text="Đặt lại vị trí &amp; kích thước" android:textSize="14sp" app:icon="@drawable/ic_refresh" app:iconGravity="textStart" app:iconPadding="8dp" app:iconSize="18dp" />
+<com.google.android.material.button.MaterialButton android:id="@+id/btn_island_oem" style="@style/Fox.Button.Tonal" android:layout_width="match_parent" android:layout_height="46dp" android:layout_marginTop="8dp" android:text="Mở cài đặt chạy nền của hãng" android:textSize="14sp" app:icon="@drawable/ic_bolt" app:iconGravity="textStart" app:iconPadding="8dp" app:iconSize="18dp" />
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Nếu Island biến mất sau một lúc: bật Tự khởi động, tắt tối ưu pin cho FoxWidget, và (Xiaomi, Oppo, Vivo) cho phép Hiển thị cửa sổ bật lên khi chạy nền." android:textColor="@color/fox_text_sub" android:textSize="12sp" android:layout_marginTop="12dp" />
+</LinearLayout>
+</LinearLayout>
 </LinearLayout>
 <LinearLayout android:id="@+id/page_version" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/bg_hero_card" android:gravity="center_horizontal" android:orientation="vertical" android:padding="22dp">
 <com.google.android.material.imageview.ShapeableImageView android:layout_width="96dp" android:layout_height="96dp" android:padding="1.5dp" android:scaleType="centerCrop" android:src="@drawable/fox_logo" android:contentDescription="FoxWidget logo" app:shapeAppearanceOverlay="@style/Fox.Shape.LogoLarge" app:strokeColor="#80FFFFFF" app:strokeWidth="1.5dp"/>
 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="FoxWidget" android:textColor="#FFFFFF" android:textSize="24sp" android:textStyle="bold" android:layout_marginTop="12dp" />
 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Liquid Glass · Lịch Việt · Realtime" android:textColor="#E4DAFF" android:textSize="12.5sp" android:layout_marginTop="2dp" />
-<TextView android:id="@+id/tv_info_app_version" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Phiên bản 3.1" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:layout_marginTop="12dp" android:background="@drawable/bg_version_pill" android:paddingHorizontal="14dp" android:paddingVertical="5dp" />
+<TextView android:id="@+id/tv_info_app_version" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Phiên bản 1.3" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:layout_marginTop="12dp" android:background="@drawable/bg_version_pill" android:paddingHorizontal="14dp" android:paddingVertical="5dp" />
 </LinearLayout>
 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:background="@drawable/bg_card_white" android:orientation="vertical" android:padding="16dp">
 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="THIẾT BỊ CỦA BẠN" android:textColor="@color/fox_text_sub" android:textSize="11.5sp" android:textStyle="bold" android:letterSpacing="0.06" />
@@ -256,6 +328,13 @@
 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="12dp" android:orientation="vertical">
 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Liquid Glass quang học" android:textColor="@color/fox_text" android:textSize="14sp" android:textStyle="bold" />
 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="5 chất liệu kính, tán sắc viền và bóng vòm giọt nước" android:textColor="@color/fox_text_sub" android:textSize="12.5sp" android:layout_marginTop="2dp" />
+</LinearLayout>
+</LinearLayout>
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="horizontal">
+<ImageView android:layout_width="38dp" android:layout_height="38dp" android:background="@drawable/bg_icon_tile" android:padding="8dp" android:src="@drawable/ic_island" android:tint="#6C47FF" android:contentDescription="@null"/>
+<LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="12dp" android:orientation="vertical">
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Dynamic Island" android:textColor="@color/fox_text" android:textSize="14sp" android:textStyle="bold" />
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Lịch, thời tiết, vị trí, pin &amp; nhiệt độ nổi ở đỉnh màn hình, chạy trên mọi hãng Android" android:textColor="@color/fox_text_sub" android:textSize="12.5sp" android:layout_marginTop="2dp" />
 </LinearLayout>
 </LinearLayout>
 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="horizontal">

@@ -1,6 +1,7 @@
 package com.foxwidget.app
 
 import android.Manifest
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
@@ -35,6 +36,7 @@ import com.foxwidget.app.data.PrefsManager
 import com.foxwidget.app.databinding.ActivityMainBinding
 import com.foxwidget.app.service.FoxMonitorService
 import com.foxwidget.app.util.DeviceTelemetryHelper
+import com.foxwidget.app.util.IslandOverlayManager
 import com.foxwidget.app.util.LiquidGlassRenderer
 import com.foxwidget.app.util.OemOptimizationHelper
 import com.foxwidget.app.util.VietLunarCalendar
@@ -76,6 +78,7 @@ class MainActivity : AppCompatActivity() {
         setupCustomizeTab()
         setupOtherTabs()
         setupInfoTab()
+        setupIslandTab()
 
         selectTab(3)
 
@@ -103,6 +106,8 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         refreshPermissionStatuses()
         updateLivePreview()
+        refreshIslandPage()
+        IslandOverlayManager.sync(this)
     }
 
     private fun setupBottomTabs() {
@@ -125,7 +130,7 @@ class MainActivity : AppCompatActivity() {
             binding.pageLunar,
             binding.pageWeather,
             binding.pageCustomize,
-            binding.pageWidget,
+            binding.pageWidgetIsland,
             binding.pageVersion
         )
         val navViews = listOf(
@@ -152,6 +157,7 @@ class MainActivity : AppCompatActivity() {
 
         if (index == 1) refreshLunarPage()
         if (index == 2) refreshWeatherPage()
+        if (index == 4) refreshIslandPage()
         if (index == 5) refreshInfoPage()
     }
 
@@ -488,6 +494,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private var islandUiUpdating = false
+
     private fun applyAndBroadcast() {
         updateLivePreview()
         FoxWidgetProvider.updateAllWidgets(this)
@@ -629,19 +637,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        binding.btnPinWidgetHome.setOnClickListener {
-            val appWidgetManager = AppWidgetManager.getInstance(this)
-            val provider = ComponentName(this, FoxWidgetProvider::class.java)
-            if (appWidgetManager.isRequestPinAppWidgetSupported) {
-                appWidgetManager.requestPinAppWidget(provider, null, null)
-            } else {
-                Toast.makeText(
-                    this,
-                    "Nhấn giữ màn hình chính > Chọn Tiện ích (Widgets) > Tìm FoxWidget!",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        }
+        binding.btnPinWidgetHome.setOnClickListener { requestPinWidget() }
+        binding.btnWidgetManualGuide.setOnClickListener { showManualWidgetGuide(null) }
 
         binding.btnForceSyncWidget.setOnClickListener {
             lifecycleScope.launch {
@@ -650,6 +647,80 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this@MainActivity, "Đã đồng bộ lại toàn bộ Widget trên màn hình!", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    /**
+     * Android không cho ứng dụng tự đặt widget lên màn hình chính: ứng dụng chỉ có thể GỬI YÊU CẦU,
+     * launcher mới là nơi hiện hộp thoại "Thêm". Nhiều launcher/hãng (Xiaomi, Oppo, Vivo, Huawei...)
+     * không hỗ trợ hoặc chặn yêu cầu này nếu chưa bật quyền "Tạo lối tắt trên Màn hình chính".
+     */
+    private fun requestPinWidget() {
+        val manager = AppWidgetManager.getInstance(this)
+        if (!manager.isRequestPinAppWidgetSupported) {
+            showManualWidgetGuide("Launcher hiện tại không hỗ trợ thêm widget tự động.")
+            return
+        }
+        val provider = ComponentName(this, FoxWidgetProvider::class.java)
+        val callback = PendingIntent.getBroadcast(
+            this,
+            0,
+            Intent(this, FoxWidgetProvider::class.java).setAction(FoxWidgetProvider.ACTION_REFRESH_WIDGET),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+        )
+        val accepted = try {
+            manager.requestPinAppWidget(provider, null, callback)
+        } catch (_: Exception) {
+            false
+        }
+        if (accepted) {
+            Toast.makeText(
+                this,
+                "Hãy bấm \"Thêm\" trên màn hình chính. Không thấy hộp thoại thì dùng hướng dẫn thủ công bên dưới.",
+                Toast.LENGTH_LONG
+            ).show()
+        } else {
+            showManualWidgetGuide("Launcher đã từ chối yêu cầu thêm widget tự động.")
+        }
+    }
+
+    private fun showManualWidgetGuide(reason: String?) {
+        val mfg = (Build.MANUFACTURER ?: "").lowercase(Locale.ROOT)
+        val brandTip = when {
+            mfg.contains("xiaomi") || mfg.contains("redmi") || mfg.contains("poco") ->
+                "Xiaomi / Redmi / POCO: vào Cài đặt > Ứng dụng > FoxWidget > Quyền khác, bật " +
+                    "\"Tạo lối tắt trên Màn hình chính\" rồi bấm lại nút Thêm."
+            mfg.contains("oppo") || mfg.contains("realme") || mfg.contains("oneplus") ->
+                "OPPO / Realme / OnePlus: vào Thông tin ứng dụng FoxWidget > Quyền, bật quyền " +
+                    "\"Lối tắt trên màn hình chính\" (nếu có) rồi thử lại."
+            mfg.contains("vivo") || mfg.contains("iqoo") ->
+                "vivo / iQOO: vào Thông tin ứng dụng FoxWidget > Quyền khác, bật " +
+                    "\"Tạo lối tắt trên màn hình chính\" rồi thử lại."
+            mfg.contains("huawei") || mfg.contains("honor") ->
+                "Huawei / Honor: vào Thông tin ứng dụng FoxWidget > Quyền, bật quyền " +
+                    "\"Tạo lối tắt trên màn hình chính\" rồi thử lại."
+            else -> null
+        }
+        val message = buildString {
+            if (reason != null) append(reason).append("\n\n")
+            append("Cách thêm thủ công (hoạt động trên mọi máy):\n")
+            append("1. Nhấn giữ vào chỗ trống trên màn hình chính.\n")
+            append("2. Chọn \"Tiện ích\" (Widgets).\n")
+            append("3. Tìm \"FoxWidget\", nhấn giữ rồi kéo ra màn hình.")
+            if (brandTip != null) append("\n\n").append(brandTip)
+        }
+        AlertDialog.Builder(this)
+            .setTitle("Thêm FoxWidget ra màn hình chính")
+            .setMessage(message)
+            .setPositiveButton("Đã hiểu", null)
+            .setNeutralButton("Mở quyền ứng dụng") { _, _ ->
+                try {
+                    startActivity(
+                        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName"))
+                    )
+                } catch (_: Exception) {
+                }
+            }
+            .show()
     }
 
     private fun refreshLunarPage() {
@@ -678,12 +749,274 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    // ==================== TAB: DYNAMIC ISLAND ====================
+    private fun setupIslandTab() {
+        binding.swIslandEnabled.setOnCheckedChangeListener { _, checked ->
+            if (islandUiUpdating) return@setOnCheckedChangeListener
+            prefs.islandEnabled = checked
+            if (checked) {
+                FoxMonitorService.start(this)
+                if (!IslandOverlayManager.canDrawOverlays(this)) {
+                    Toast.makeText(
+                        this,
+                        "Hãy bật \"Hiển thị trên ứng dụng khác\" cho FoxWidget",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    openOverlaySettings()
+                }
+            }
+            IslandOverlayManager.sync(this)
+            refreshIslandPage()
+        }
+
+        binding.btnIslandPermission.setOnClickListener { openOverlaySettings() }
+
+        binding.swIslandCalendar.setOnCheckedChangeListener { _, checked ->
+            if (islandUiUpdating) return@setOnCheckedChangeListener
+            prefs.islandShowCalendar = checked
+            IslandOverlayManager.sync(this)
+        }
+        binding.swIslandWeather.setOnCheckedChangeListener { _, checked ->
+            if (islandUiUpdating) return@setOnCheckedChangeListener
+            prefs.islandShowWeather = checked
+            IslandOverlayManager.sync(this)
+        }
+        binding.swIslandLocation.setOnCheckedChangeListener { _, checked ->
+            if (islandUiUpdating) return@setOnCheckedChangeListener
+            prefs.islandShowLocation = checked
+            IslandOverlayManager.sync(this)
+        }
+        binding.swIslandBattery.setOnCheckedChangeListener { _, checked ->
+            if (islandUiUpdating) return@setOnCheckedChangeListener
+            prefs.islandShowBattery = checked
+            IslandOverlayManager.sync(this)
+        }
+
+        bindStepperSlider(
+            seekBar = binding.seekIslandY,
+            btnMinus = binding.btnIslandYMinus,
+            btnPlus = binding.btnIslandYPlus,
+            minVal = 0,
+            maxVal = 120,
+            step = 2,
+            initial = prefs.islandOffsetYDp
+        ) { v ->
+            prefs.islandOffsetYDp = v
+            updateIslandLabels()
+            IslandOverlayManager.sync(this)
+        }
+        bindStepperSlider(
+            seekBar = binding.seekIslandX,
+            btnMinus = binding.btnIslandXMinus,
+            btnPlus = binding.btnIslandXPlus,
+            minVal = -150,
+            maxVal = 150,
+            step = 5,
+            initial = prefs.islandOffsetXDp
+        ) { v ->
+            prefs.islandOffsetXDp = v
+            updateIslandLabels()
+            IslandOverlayManager.sync(this)
+        }
+        bindStepperSlider(
+            seekBar = binding.seekIslandScale,
+            btnMinus = binding.btnIslandScaleMinus,
+            btnPlus = binding.btnIslandScalePlus,
+            minVal = 70,
+            maxVal = 130,
+            step = 5,
+            initial = prefs.islandScale
+        ) { v ->
+            prefs.islandScale = v
+            updateIslandLabels()
+            IslandOverlayManager.sync(this)
+        }
+
+        binding.btnIslandModeSystem.setOnClickListener {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                Toast.makeText(this, "Máy này chưa có màu hệ thống động, hãy chọn màu Tùy chỉnh", Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
+            prefs.islandColorMode = PrefsManager.ISLAND_COLOR_SYSTEM
+            refreshIslandPage()
+            IslandOverlayManager.sync(this)
+        }
+        binding.btnIslandModeCustom.setOnClickListener {
+            prefs.islandColorMode = PrefsManager.ISLAND_COLOR_CUSTOM
+            refreshIslandPage()
+            IslandOverlayManager.sync(this)
+        }
+        binding.btnIslandStyleSolid.setOnClickListener {
+            prefs.islandStyle = PrefsManager.ISLAND_STYLE_SOLID
+            refreshIslandPage()
+            IslandOverlayManager.sync(this)
+        }
+        binding.btnIslandStyleGlass.setOnClickListener {
+            prefs.islandStyle = PrefsManager.ISLAND_STYLE_GLASS
+            refreshIslandPage()
+            IslandOverlayManager.sync(this)
+        }
+
+        binding.btnIslandPreview.setOnClickListener {
+            if (!IslandOverlayManager.canDrawOverlays(this)) {
+                Toast.makeText(this, "Cần cấp quyền hiển thị trên ứng dụng khác trước", Toast.LENGTH_LONG).show()
+                openOverlaySettings()
+                return@setOnClickListener
+            }
+            if (!prefs.islandEnabled) {
+                prefs.islandEnabled = true
+                FoxMonitorService.start(this)
+                refreshIslandPage()
+            }
+            IslandOverlayManager.preview(this)
+        }
+
+        binding.btnIslandReset.setOnClickListener {
+            prefs.resetIslandLayout()
+            binding.seekIslandY.progress = prefs.islandOffsetYDp
+            binding.seekIslandX.progress = prefs.islandOffsetXDp + 150
+            binding.seekIslandScale.progress = prefs.islandScale - 70
+            updateIslandLabels()
+            IslandOverlayManager.sync(this)
+            Toast.makeText(this, "Đã đặt lại vị trí & kích thước Dynamic Island", Toast.LENGTH_SHORT).show()
+        }
+
+        binding.btnIslandOem.setOnClickListener {
+            OemOptimizationHelper.openOemBackgroundSettings(this)
+        }
+
+        updateIslandLabels()
+    }
+
+    private fun openOverlaySettings() {
+        try {
+            startActivity(
+                Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
+            )
+        } catch (_: Exception) {
+            try {
+                startActivity(
+                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName"))
+                )
+            } catch (_: Exception) {
+                Toast.makeText(this, "Hãy vào Cài đặt > Ứng dụng > FoxWidget để cấp quyền", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun refreshIslandPage() {
+        islandUiUpdating = true
+        binding.swIslandEnabled.isChecked = prefs.islandEnabled
+        binding.swIslandCalendar.isChecked = prefs.islandShowCalendar
+        binding.swIslandWeather.isChecked = prefs.islandShowWeather
+        binding.swIslandLocation.isChecked = prefs.islandShowLocation
+        binding.swIslandBattery.isChecked = prefs.islandShowBattery
+        islandUiUpdating = false
+
+        val granted = IslandOverlayManager.canDrawOverlays(this)
+        binding.tvIslandPermStatus.text = if (granted) {
+            "Đã cấp quyền hiển thị trên ứng dụng khác"
+        } else {
+            "Chưa cấp quyền hiển thị trên ứng dụng khác"
+        }
+        styleStatusButton(binding.btnIslandPermission, granted)
+        updateIslandLabels()
+        refreshIslandColorUi()
+    }
+
+    private val islandSwatches = intArrayOf(
+        0xFF000000.toInt(), 0xFF6C47FF.toInt(), 0xFF2563EB.toInt(), 0xFF0EA5A4.toInt(), 0xFF16A34A.toInt(),
+        0xFFF59E0B.toInt(), 0xFFEA580C.toInt(), 0xFFDC2626.toInt(), 0xFFDB2777.toInt(), 0xFFF8F7FF.toInt()
+    )
+
+    private fun setSegment(view: TextView, active: Boolean) {
+        view.setBackgroundResource(if (active) R.drawable.bg_segment_active else 0)
+        view.setTextColor(
+            if (active) Color.WHITE else ContextCompat.getColor(this, R.color.fox_text_sub)
+        )
+    }
+
+    private fun refreshIslandColorUi() {
+        val systemSupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        val systemMode = systemSupported && prefs.islandColorMode == PrefsManager.ISLAND_COLOR_SYSTEM
+
+        setSegment(binding.btnIslandModeSystem, systemMode)
+        setSegment(binding.btnIslandModeCustom, !systemMode)
+        binding.btnIslandModeSystem.alpha = if (systemSupported) 1f else 0.4f
+        setSegment(binding.btnIslandStyleSolid, prefs.islandStyle == PrefsManager.ISLAND_STYLE_SOLID)
+        setSegment(binding.btnIslandStyleGlass, prefs.islandStyle == PrefsManager.ISLAND_STYLE_GLASS)
+
+        binding.tvIslandColorHint.text = when {
+            !systemSupported -> "Máy này (Android dưới 12) chưa có màu hệ thống động. Hãy chọn màu ở bên dưới."
+            systemMode -> "Đang dùng màu chủ đề của máy (Material You / màu hãng), tự đổi theo hình nền."
+            else -> "Đang dùng màu tùy chỉnh. Chọn \"Màu hệ thống\" để island tự theo màu của máy."
+        }
+        binding.llIslandCustomColors.visibility = if (systemMode) View.GONE else View.VISIBLE
+        if (!systemMode) buildIslandSwatches()
+    }
+
+    private fun buildIslandSwatches() {
+        val host = binding.llIslandSwatches
+        host.removeAllViews()
+        val d = resources.displayMetrics.density
+        val selectedColor = prefs.islandCustomColor or 0xFF000000.toInt()
+        val primary = ContextCompat.getColor(this, R.color.fox_primary)
+
+        islandSwatches.toList().chunked(5).forEach { chunk ->
+            val row = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply { topMargin = (8 * d).toInt() }
+            }
+            chunk.forEach { color ->
+                val selected = color == selectedColor
+                val cell = android.widget.FrameLayout(this).apply {
+                    layoutParams = LinearLayout.LayoutParams(0, (44 * d).toInt(), 1f)
+                }
+                val dot = View(this).apply {
+                    layoutParams = android.widget.FrameLayout.LayoutParams(
+                        (38 * d).toInt(), (38 * d).toInt(), android.view.Gravity.CENTER
+                    )
+                    background = android.graphics.drawable.GradientDrawable().apply {
+                        shape = android.graphics.drawable.GradientDrawable.OVAL
+                        setColor(color)
+                        if (selected) setStroke((3 * d).toInt(), primary)
+                        else setStroke((1 * d).toInt().coerceAtLeast(1), 0x33000000)
+                    }
+                    contentDescription = "Màu island"
+                    setOnClickListener {
+                        prefs.islandColorMode = PrefsManager.ISLAND_COLOR_CUSTOM
+                        prefs.islandCustomColor = color
+                        buildIslandSwatches()
+                        IslandOverlayManager.sync(this@MainActivity)
+                    }
+                }
+                cell.addView(dot)
+                row.addView(cell)
+            }
+            host.addView(row)
+        }
+    }
+
+    private fun updateIslandLabels() {
+        binding.tvLabelIslandY.text = "Cách mép trên: ${prefs.islandOffsetYDp}dp"
+        val x = prefs.islandOffsetXDp
+        binding.tvLabelIslandX.text = when {
+            x == 0 -> "Lệch ngang: giữa màn hình"
+            x < 0 -> "Lệch ngang: ${-x}dp sang trái"
+            else -> "Lệch ngang: ${x}dp sang phải"
+        }
+        binding.tvLabelIslandScale.text = "Kích thước: ${prefs.islandScale}%"
+    }
+
     // ==================== TAB 6: THÔNG TIN ====================
     private fun setupInfoTab() {
         val versionName = try {
-            packageManager.getPackageInfo(packageName, 0).versionName ?: "3.1"
+            packageManager.getPackageInfo(packageName, 0).versionName ?: "1.3"
         } catch (_: Exception) {
-            "3.1"
+            "1.3"
         }
         binding.tvHeaderVersion.text = "v$versionName"
         binding.tvInfoAppVersion.text = "Phiên bản $versionName"

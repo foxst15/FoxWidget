@@ -21,6 +21,7 @@ import androidx.work.WorkerParameters
 import com.foxwidget.app.MainActivity
 import com.foxwidget.app.R
 import com.foxwidget.app.util.DeviceTelemetryHelper
+import com.foxwidget.app.util.IslandOverlayManager
 import com.foxwidget.app.widget.FoxWidgetProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -194,6 +195,7 @@ class FoxMonitorService : Service() {
             unregisterReceiver(tickReceiver)
         } catch (_: Exception) {
         }
+        IslandOverlayManager.remove()
         serviceJob.cancel()
     }
 

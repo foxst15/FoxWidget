@@ -17,6 +17,12 @@ class PrefsManager(context: Context) {
         const val BG_OCEAN_BLUE = 2
         const val BG_EMERALD_MIST = 3
         const val BG_PRISMATIC_FROST = 4
+
+        // Dynamic Island: nguồn màu & kiểu nền
+        const val ISLAND_COLOR_SYSTEM = 0
+        const val ISLAND_COLOR_CUSTOM = 1
+        const val ISLAND_STYLE_SOLID = 0
+        const val ISLAND_STYLE_GLASS = 1
     }
 
     var widgetStyle: Int
@@ -88,6 +94,67 @@ class PrefsManager(context: Context) {
     var cachedWeatherDesc: String
         get() = prefs.getString("cached_weather_desc", "Nắng nhẹ · Ít mây") ?: "Nắng nhẹ · Ít mây"
         set(value) = prefs.edit().putString("cached_weather_desc", value).apply()
+
+
+    // ===== Dynamic Island (overlay) =====
+    var islandEnabled: Boolean
+        get() = prefs.getBoolean("island_enabled", false)
+        set(value) = prefs.edit().putBoolean("island_enabled", value).apply()
+
+    var islandShowCalendar: Boolean
+        get() = prefs.getBoolean("island_show_calendar", true)
+        set(value) = prefs.edit().putBoolean("island_show_calendar", value).apply()
+
+    var islandShowWeather: Boolean
+        get() = prefs.getBoolean("island_show_weather", true)
+        set(value) = prefs.edit().putBoolean("island_show_weather", value).apply()
+
+    var islandShowLocation: Boolean
+        get() = prefs.getBoolean("island_show_location", true)
+        set(value) = prefs.edit().putBoolean("island_show_location", value).apply()
+
+    var islandShowBattery: Boolean
+        get() = prefs.getBoolean("island_show_battery", true)
+        set(value) = prefs.edit().putBoolean("island_show_battery", value).apply()
+
+    // Khoảng cách từ mép trên màn hình (dp)
+    var islandOffsetYDp: Int
+        get() = prefs.getInt("island_offset_y_dp", 6)
+        set(value) = prefs.edit().putInt("island_offset_y_dp", value).apply()
+
+    // Lệch ngang so với giữa màn hình (dp, âm = sang trái)
+    var islandOffsetXDp: Int
+        get() = prefs.getInt("island_offset_x_dp", 0)
+        set(value) = prefs.edit().putInt("island_offset_x_dp", value).apply()
+
+    // Kích thước (%)
+    var islandScale: Int
+        get() = prefs.getInt("island_scale", 100)
+        set(value) = prefs.edit().putInt("island_scale", value).apply()
+
+    // 0 = theo màu hệ thống/hãng (Android 12+), 1 = tùy chỉnh. Máy cũ mặc định tùy chỉnh.
+    var islandColorMode: Int
+        get() = prefs.getInt(
+            "island_color_mode",
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) ISLAND_COLOR_SYSTEM else ISLAND_COLOR_CUSTOM
+        )
+        set(value) = prefs.edit().putInt("island_color_mode", value).apply()
+
+    var islandCustomColor: Int
+        get() = prefs.getInt("island_custom_color", 0xFF000000.toInt())
+        set(value) = prefs.edit().putInt("island_custom_color", value).apply()
+
+    var islandStyle: Int
+        get() = prefs.getInt("island_style", ISLAND_STYLE_SOLID)
+        set(value) = prefs.edit().putInt("island_style", value).apply()
+
+    fun resetIslandLayout() {
+        prefs.edit()
+            .putInt("island_offset_y_dp", 6)
+            .putInt("island_offset_x_dp", 0)
+            .putInt("island_scale", 100)
+            .apply()
+    }
 
     fun resetDefaults() {
         prefs.edit()

@@ -16,6 +16,7 @@ import com.foxwidget.app.R
 import com.foxwidget.app.data.PrefsManager
 import com.foxwidget.app.service.FoxMonitorService
 import com.foxwidget.app.util.DeviceTelemetryHelper
+import com.foxwidget.app.util.IslandOverlayManager
 import com.foxwidget.app.util.LiquidGlassRenderer
 import com.foxwidget.app.util.VietLunarCalendar
 import kotlinx.coroutines.CoroutineScope
@@ -32,6 +33,8 @@ class FoxWidgetProvider : AppWidgetProvider() {
         const val ACTION_MINUTE_TICK = "com.foxwidget.app.ACTION_MINUTE_TICK"
 
         fun updateAllWidgets(context: Context) {
+            // Dynamic Island dùng chung nhịp cập nhật với widget (tự dựng lại nếu tiến trình bị hệ thống dọn)
+            IslandOverlayManager.sync(context)
             val manager = AppWidgetManager.getInstance(context)
             val ids = manager.getAppWidgetIds(ComponentName(context, FoxWidgetProvider::class.java))
             for (id in ids) {
