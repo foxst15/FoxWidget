@@ -1,9 +1,12 @@
-name: Build FoxWidget v3.0 Liquid Glass APK
+name: Build FoxWidget v1.0 Liquid Glass APK
 
 on:
   push:
     branches: [ main, master ]
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -18,7 +21,20 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Install Android SDK Platform 36 (dùng SDK có sẵn trên runner)
+      - name: Auto-generate & save Keystore (tự tạo 1 lần duy nhất)
+        run: |
+          PROJECT_DIR=$(dirname $(find . -maxdepth 4 -name "settings.gradle*" | head -n 1))
+          KEYSTORE_PATH="$PROJECT_DIR/app/foxwidget.jks"
+          if [ ! -f "$KEYSTORE_PATH" ]; then
+            keytool -genkey -v -keystore "$KEYSTORE_PATH" -keyalg RSA -keysize 2048 -validity 10000 -alias foxwidget -storepass foxstudio123 -keypass foxstudio123 -dname "CN=FoxST, OU=FoxStudio, O=FoxStudio, C=VN"
+            git config user.name "FoxStudio Bot"
+            git config user.email "actions@github.com"
+            git add -f "$KEYSTORE_PATH"
+            git commit -m "chore: add permanent foxwidget.jks keystore"
+            git push
+          fi
+
+      - name: Install Android SDK Platform 36
         run: |
           SDKM="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
           yes | "$SDKM" --licenses > /dev/null || true
@@ -30,11 +46,15 @@ jobs:
           gradle-version: '8.11.1'
 
       - name: Build Debug APK
-        working-directory: FoxWidget-Android-Project/FoxWidget_v3
-        run: gradle assembleDebug
+        run: |
+          PROJECT_DIR=$(dirname $(find . -maxdepth 4 -name "settings.gradle*" | head -n 1))
+          cd "$PROJECT_DIR"
+          gradle assembleDebug
+          mkdir -p "$GITHUB_WORKSPACE/output_apk"
+          cp app/build/outputs/apk/debug/*.apk "$GITHUB_WORKSPACE/output_apk/"
 
-      - name: Upload FoxWidget v3.0 Liquid Glass APK
+      - name: Upload FoxWidget APK
         uses: actions/upload-artifact@v4
         with:
-          name: FoxWidget-v3.0-LiquidGlass-apk
-          path: FoxWidget-Android-Project/FoxWidget_v3/app/build/outputs/apk/debug/app-debug.apk
+          name: FoxWidget-v1.0-apk
+          path: output_apk/*.apk
