@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="fox_primary">#6C47FF</color>
+    <color name="fox_primary_dark">#4B2BD4</color>
+    <color name="fox_accent">#9B6BFF</color>
+    <color name="fox_bg">#F5F2FF</color>
+    <color name="fox_stroke">#E8E2FB</color>
+    <color name="fox_text">#1E1A33</color>
+    <color name="fox_text_sub">#6F6A8A</color>
+    <color name="fox_tile">#EEE9FF</color>
+    <color name="fox_success">#12945A</color>
+    <color name="fox_success_bg">#DDF7E9</color>
+    <color name="fox_warn">#E8710A</color>
+</resources>
