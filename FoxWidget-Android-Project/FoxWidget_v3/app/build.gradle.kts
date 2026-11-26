@@ -11,12 +11,25 @@ android {
         applicationId = "com.foxwidget.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 4
-        versionName = "3.1"
+        versionCode = 1
+        versionName = "1.0"
+    }
+
+    signingConfigs {
+        create("foxKey") {
+            storeFile = file("foxwidget.jks")
+            storePassword = "foxstudio123"
+            keyAlias = "foxwidget"
+            keyPassword = "foxstudio123"
+        }
     }
 
     buildTypes {
-        release {
+        getByName("debug") {
+            signingConfig = signingConfigs.getByName("foxKey")
+        }
+        getByName("release") {
+            signingConfig = signingConfigs.getByName("foxKey")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
