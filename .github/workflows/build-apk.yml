@@ -30,7 +30,7 @@ jobs:
           gradle-version: '8.11.1'
 
       - name: Build Debug APK
-        working-directory: FoxWidget-Android-Project-v3.3/FoxWidget_v3
+        working-directory: FoxWidget-Android-Project/FoxWidget_v3
         run: gradle assembleDebug
 
       - name: Upload FoxWidget v3.0 Liquid Glass APK
