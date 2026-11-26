@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./FoxWidget512_2.jpg" alt="FoxWidget Logo" width="210" style="border-radius: 36px;" />
+  <img src="/FoxWidget512_2.jpg" alt="FoxWidget Logo" width="210" style="border-radius: 36px;" />
 
   # 🦊 FoxWidget — Optical Liquid Glass & Dynamic Island
 
