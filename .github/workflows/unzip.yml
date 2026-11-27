@@ -1,0 +1,21 @@
+name: Auto Unzip Source
+on:
+  push:
+    paths:
+      - 'source.zip'
+permissions:
+  contents: write
+jobs:
+  unzip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract and Push
+        run: |
+          unzip -o source.zip
+          rm -f source.zip
+          git config user.name "FoxStudio Bot"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "chore: extract source files"
+          git push
