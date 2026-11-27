@@ -44,10 +44,8 @@ object DeviceTelemetryHelper {
         return BatteryStats(pct, tempC, isCharging)
     }
 
-    fun getDeviceShortName(): String {
-        val model = Build.MODEL ?: "Android"
-        return if (model.length > 15) model.take(15) else model
-    }
+    /** Tên thương mại của máy (Galaxy S26, Redmi Note 14...), không chỉ mã model. */
+    fun getDeviceShortName(context: Context): String = DeviceInfoHelper.getShortName(context)
 
     @Suppress("MissingPermission")
     fun getLastKnownLocation(context: Context): Location? {
@@ -71,62 +69,8 @@ object DeviceTelemetryHelper {
         return bestLocation
     }
 
-    suspend fun refreshWeatherAndLocation(context: Context) = withContext(Dispatchers.IO) {
-        val prefs = PrefsManager(context)
-        val loc = getLastKnownLocation(context)
-        val lat = loc?.latitude ?: 15.1214
-        val lon = loc?.longitude ?: 108.8044
-
-        if (loc != null) {
-            try {
-                @Suppress("DEPRECATION")
-                val geocoder = Geocoder(context, Locale("vi", "VN"))
-                val addresses = geocoder.getFromLocation(lat, lon, 1)
-                if (!addresses.isNullOrEmpty()) {
-                    val addr = addresses[0]
-                    val place = addr.subLocality
-                        ?: addr.locality
-                        ?: addr.subAdminArea
-                        ?: addr.adminArea
-                    if (!place.isNullOrBlank()) {
-                        prefs.cachedLocationName = place
-                    }
-                }
-            } catch (_: Exception) {
-            }
-        }
-
-        try {
-            val url = URL("https://api.open-meteo.com/v1/forecast?latitude=$lat&longitude=$lon&current_weather=true")
-            val conn = (url.openConnection() as HttpURLConnection).apply {
-                connectTimeout = 5000
-                readTimeout = 5000
-                requestMethod = "GET"
-            }
-            if (conn.responseCode == 200) {
-                val body = conn.inputStream.bufferedReader().use { it.readText() }
-                val json = JSONObject(body)
-                val current = json.getJSONObject("current_weather")
-                val temp = current.getDouble("temperature").toInt()
-                val code = current.getInt("weathercode")
-                prefs.cachedTempC = temp
-                prefs.cachedWeatherDesc = mapWeatherCodeVi(code)
-            }
-            conn.disconnect()
-        } catch (_: Exception) {
-        }
-    }
-
-    private fun mapWeatherCodeVi(code: Int): String {
-        return when (code) {
-            0 -> "Trời quang · Nắng đẹp"
-            1, 2 -> "Nắng nhẹ · Ít mây"
-            3 -> "Nhiều mây · Mát mẻ"
-            45, 48 -> "Sương mù nhẹ"
-            51, 53, 55, 61, 63, 65 -> "Có mưa rào"
-            80, 81, 82 -> "Mưa rào rải rác"
-            95, 96, 99 -> "Có dông"
-            else -> "Thời tiết ổn định"
-        }
+    /** Làm mới thời tiết + địa danh (đa nguồn, xem WeatherHelper). Giữ tên hàm cũ cho các nơi đang gọi. */
+    suspend fun refreshWeatherAndLocation(context: Context) {
+        WeatherHelper.refresh(context)
     }
 }

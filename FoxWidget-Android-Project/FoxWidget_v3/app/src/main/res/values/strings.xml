@@ -2,4 +2,10 @@
     <string name="app_name">FoxWidget</string>
     <string name="widget_name">FoxWidget · Liquid Glass &amp; Lịch Việt</string>
     <string name="widget_description">Kính lỏng quang học 3D, Đồng hồ realtime, Lịch Âm Dương Việt Nam &amp; Nhiệt độ pin</string>
+    <string name="widget_clock_name">FoxWidget · Đồng hồ</string>
+    <string name="widget_clock_description">Đồng hồ lớn, ngày dương, âm lịch và ngày lễ</string>
+    <string name="widget_weather_name">FoxWidget · Thời tiết</string>
+    <string name="widget_weather_description">Thời tiết chi tiết: theo giờ, nhiều ngày, UV, AQI, bình minh hoàng hôn</string>
+    <string name="widget_calendar_name">FoxWidget · Lịch tháng</string>
+    <string name="widget_calendar_description">Lịch tháng dương kèm ngày âm, đánh dấu hôm nay và ngày lễ</string>
 </resources>

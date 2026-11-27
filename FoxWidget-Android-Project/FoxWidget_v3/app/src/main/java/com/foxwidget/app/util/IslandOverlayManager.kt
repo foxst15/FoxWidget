@@ -61,8 +61,53 @@ import kotlin.math.roundToInt
  */
 object IslandOverlayManager {
 
-    private const val EXPAND_MS = 320L
-    private const val COLLAPSE_MS = 280L
+    /**
+     * Thông số "chất" riêng của từng hãng: độ bo thẻ, tốc độ + độ nảy hoạt ảnh, vầng sáng, bề rộng thẻ mở rộng.
+     * Đối chiếu cách các hãng làm: iOS Dynamic Island (nảy lò xo, nền đen tuyền), Xiaomi Hyper Island (mượt, không nảy),
+     * OPPO Fluid Cloud (kính mờ, chảy chậm, vầng sáng), vivo Atomic Island (nhanh, gọn), HONOR Magic Capsule
+     * (viên thuốc mềm), Samsung Now Bar (thẻ rộng, nảy nhẹ).
+     */
+    private data class Preset(
+        val name: String,
+        val glass: Boolean?,          // null = theo lựa chọn Đặc/Kính của người dùng
+        val expandedCornerDp: Float,
+        val expandMs: Long,
+        val collapseMs: Long,
+        val overshoot: Float,         // 0 = không nảy
+        val glowAlpha: Float,         // 0..1
+        val expandedWidthDp: Float,
+        val edgeAlpha: Int            // viền sáng khi mở rộng (0..255)
+    )
+
+    private val PRESET_CLASSIC = Preset("Dynamic Island", null, 40f, 360L, 300L, 1.15f, 0f, 370f, 0x18)
+    private val PRESET_HYPER = Preset("Hyper Island", null, 32f, 300L, 260L, 0f, 0.35f, 360f, 0x2A)
+    private val PRESET_FLUID = Preset("Fluid Cloud", true, 30f, 420L, 340L, 0.6f, 0.9f, 360f, 0x40)
+    private val PRESET_ATOMIC = Preset("Atomic Island", null, 28f, 240L, 220L, 1.5f, 0f, 340f, 0x20)
+    private val PRESET_CAPSULE = Preset("Magic Capsule", null, 26f, 330L, 280L, 0.8f, 0.5f, 350f, 0x30)
+    private val PRESET_NOWBAR = Preset("Now Bar", null, 26f, 280L, 250L, 0.4f, 0.15f, 380f, 0x22)
+
+    private fun resolvePreset(prefs: PrefsManager): Preset {
+        val id = if (prefs.islandPreset == PrefsManager.ISLAND_PRESET_AUTO) {
+            when (DeviceInfoHelper.getIslandFamily()) {
+                "xiaomi" -> PrefsManager.ISLAND_PRESET_HYPER
+                "oppo" -> PrefsManager.ISLAND_PRESET_FLUID
+                "vivo" -> PrefsManager.ISLAND_PRESET_ATOMIC
+                "honor" -> PrefsManager.ISLAND_PRESET_CAPSULE
+                "samsung" -> PrefsManager.ISLAND_PRESET_NOWBAR
+                else -> PrefsManager.ISLAND_PRESET_CLASSIC
+            }
+        } else prefs.islandPreset
+        return when (id) {
+            PrefsManager.ISLAND_PRESET_HYPER -> PRESET_HYPER
+            PrefsManager.ISLAND_PRESET_FLUID -> PRESET_FLUID
+            PrefsManager.ISLAND_PRESET_ATOMIC -> PRESET_ATOMIC
+            PrefsManager.ISLAND_PRESET_CAPSULE -> PRESET_CAPSULE
+            PrefsManager.ISLAND_PRESET_NOWBAR -> PRESET_NOWBAR
+            else -> PRESET_CLASSIC
+        }
+    }
+
+    private var preset: Preset = PRESET_CLASSIC
     private const val CYCLE_MS = 3500L
     private const val AUTO_COLLAPSE_MS = 7000L
 
@@ -70,6 +115,8 @@ object IslandOverlayManager {
     private const val COLOR_WEATHER = 0xFF7DD3FC.toInt()
     private const val COLOR_LOC = 0xFFF9A8D4.toInt()
     private const val COLOR_BAT = 0xFF86EFAC.toInt()
+    private const val COLOR_HOLIDAY = 0xFFFCD34D.toInt()
+    private const val COLOR_EVENT = 0xFFFDA4AF.toInt()
     private const val COLOR_BAT_HOT = 0xFFFDBA74.toInt()
     private const val COLOR_GLOW_DEFAULT = 0xFF5B4BFF.toInt()
 
@@ -396,7 +443,7 @@ object IslandOverlayManager {
         val cW = (prefs.islandWidthDp * unit).coerceIn(minW, maxW).roundToInt()
         val textW = max(0f, (cW - gap) / 2f - rightPad).roundToInt()
 
-        val eW = min(360f * unit, screenW - 24f * density).roundToInt()
+        val eW = min(preset.expandedWidthDp * unit, screenW - 24f * density).roundToInt()
         h.expanded.measure(
             View.MeasureSpec.makeMeasureSpec(eW, View.MeasureSpec.EXACTLY),
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
@@ -520,8 +567,10 @@ object IslandOverlayManager {
             applyProgress(target)
         } else {
             animator = ValueAnimator.ofFloat(progress, target).apply {
-                duration = if (value) EXPAND_MS else COLLAPSE_MS
-                interpolator = if (value) OvershootInterpolator(0.9f) else DecelerateInterpolator(1.6f)
+                duration = if (value) preset.expandMs else preset.collapseMs
+                interpolator = if (value) {
+                    if (preset.overshoot > 0f) OvershootInterpolator(preset.overshoot) else DecelerateInterpolator(2.2f)
+                } else DecelerateInterpolator(1.6f)
                 addUpdateListener { applyProgress(it.animatedValue as Float) }
                 start()
             }
@@ -549,36 +598,60 @@ object IslandOverlayManager {
         val now = Calendar.getInstance()
         val items = mutableListOf<Item>()
 
-        // --- Lịch (dương + âm)
+        // --- Lịch (dương + âm + Can Chi + ngày lễ + sự kiện)
         h.rowCal.root.visibility = if (prefs.islandShowCalendar) View.VISIBLE else View.GONE
         if (prefs.islandShowCalendar) {
             val d = now.get(Calendar.DAY_OF_MONTH)
             val m = now.get(Calendar.MONTH) + 1
             val y = now.get(Calendar.YEAR)
             val lunar = VietLunarCalendar.convertSolar2Lunar(d, m, y)
+            val holiday = if (prefs.islandShowHoliday) VietHolidays.todayLine(now) else ""
+            val event = if (prefs.islandShowEvent) CalendarEventsHelper.nextLine(ctx) else ""
             h.rowCal.icon.setImageResource(R.drawable.ic_calendar)
             h.rowCal.icon.setColorFilter(tintFor(COLOR_CAL))
-            h.rowCal.value.text = VietLunarCalendar.formatSolarDateFull(now) + "\n" +
-                VietLunarCalendar.formatLunarDateFull(now)
+            h.rowCal.value.text = buildString {
+                append(VietLunarCalendar.formatSolarDateFull(now)).append("\n")
+                append(VietLunarCalendar.formatLunarDateFull(now))
+                append("\nNgày ").append(VietLunarCalendar.getDayCanChi(now))
+                append(" · Năm ").append(VietLunarCalendar.getYearCanChi(lunar.year))
+                if (holiday.isNotEmpty()) append("\n🎉 ").append(holiday)
+                if (event.isNotEmpty()) append("\n🔔 ").append(event)
+            }
             items += Item(
                 R.drawable.ic_calendar, COLOR_CAL,
                 String.format(Locale.US, "%02d/%02d · ÂL %d/%d", d, m, lunar.day, lunar.month),
                 String.format(Locale.US, "%02d/%02d", d, m)
             )
+            if (holiday.isNotEmpty()) {
+                items += Item(R.drawable.ic_sparkle, COLOR_HOLIDAY, holiday, holiday.substringBefore(" ·"))
+            }
+            if (event.isNotEmpty()) {
+                items += Item(R.drawable.ic_bell, COLOR_EVENT, event, event.substringAfter(' ').take(14))
+            }
         }
 
-        // --- Thời tiết
+        // --- Thời tiết (nhiều nguồn: Open-Meteo + MET Norway dự phòng)
         h.rowWeather.root.visibility = if (prefs.islandShowWeather) View.VISIBLE else View.GONE
         if (prefs.islandShowWeather) {
-            val desc = prefs.cachedWeatherDesc
+            val snap = WeatherHelper.load(ctx)
+            val unit = prefs.tempUnit
+            val temp = if (snap != null) {
+                WeatherHelper.formatTemp(snap.tempC, unit) + WeatherHelper.unitSuffix(unit)
+            } else "${prefs.cachedTempC}°C"
+            val desc = if (snap != null) WeatherHelper.describe(snap.code, snap.isDay) else prefs.cachedWeatherDesc
+            val detail = if (snap != null && prefs.islandWeatherDetail) {
+                listOfNotNull(
+                    "Cảm giác ${WeatherHelper.formatTemp(snap.feelsC, unit)}",
+                    if (snap.humidity >= 0) "Ẩm ${snap.humidity}%" else null,
+                    "Gió ${snap.windKmh.roundToInt()} km/h",
+                    if (snap.rainProb >= 0) "Mưa ${snap.rainProb}%" else null,
+                    if (snap.aqi >= 0) "AQI ${snap.aqi} (${WeatherHelper.aqiLabel(snap.aqi)})" else null
+                ).joinToString(" · ")
+            } else ""
             h.rowWeather.icon.setImageResource(R.drawable.ic_sun_cloud)
             h.rowWeather.icon.setColorFilter(tintFor(COLOR_WEATHER))
-            h.rowWeather.value.text = "${prefs.cachedTempC}°C · $desc"
-            items += Item(
-                R.drawable.ic_sun_cloud, COLOR_WEATHER,
-                "${prefs.cachedTempC}°C · ${desc.substringBefore(" ·")}",
-                "${prefs.cachedTempC}°C"
-            )
+            h.rowWeather.value.text = "$temp · $desc" + if (detail.isNotEmpty()) "\n$detail" else ""
+            items += Item(R.drawable.ic_sun_cloud, COLOR_WEATHER, "$temp · $desc", temp)
         }
 
         // --- Vị trí
@@ -670,8 +743,9 @@ object IslandOverlayManager {
     }
 
     private fun applyAppearance(ctx: Context, prefs: PrefsManager, h: Holder) {
+        preset = resolvePreset(prefs)
         val base = resolveBaseColor(ctx, prefs)
-        val glass = prefs.islandStyle == PrefsManager.ISLAND_STYLE_GLASS
+        val glass = preset.glass ?: (prefs.islandStyle == PrefsManager.ISLAND_STYLE_GLASS)
         val lum = ColorUtils.calculateLuminance(base)
         onColor = if (lum > 0.55) 0xFF1B1530.toInt() else Color.WHITE
         pastelIcons = lum < 0.08
@@ -684,12 +758,15 @@ object IslandOverlayManager {
         h.expTitle.setTextColor(onColor)
         h.text.setTextColor(onColor)
 
-        val glow = resolveGlowColor(ctx, prefs, base)
-        val key = "$base|$glass|$glow|$builtScale"
+        val glow = if (preset.glowAlpha <= 0f) 0 else resolveGlowColor(ctx, prefs, base)
+        val key = "$base|$glass|$glow|$builtScale|${preset.name}"
         if (key != appearanceKey) {
             appearanceKey = key
             val density = h.root.resources.displayMetrics.density
-            val bg = IslandBackground(base, glow, glass, 22f * density, 1.2f * density)
+            val bg = IslandBackground(
+                base, glow, glass, preset.expandedCornerDp * density, 1.2f * density,
+                preset.glowAlpha, preset.edgeAlpha
+            )
             bg.progress = progress.coerceIn(0f, 1f)
             background = bg
             h.root.background = bg
@@ -705,7 +782,9 @@ object IslandOverlayManager {
         private val glow: Int,
         private val glass: Boolean,
         private val cornerPx: Float,
-        private val strokePx: Float
+        private val strokePx: Float,
+        private val glowAlpha: Float,
+        private val edgeAlpha: Int
     ) : Drawable() {
         var progress = 0f
             set(value) {
@@ -778,7 +857,7 @@ object IslandOverlayManager {
             val save = canvas.save()
             canvas.clipPath(clip)
             if (glow != 0 && p > 0.01f) {
-                glowPaint.alpha = (255 * p * (if (glass) 0.7f else 1f)).roundToInt()
+                glowPaint.alpha = (255 * p * glowAlpha * (if (glass) 0.8f else 1f)).roundToInt().coerceIn(0, 255)
                 canvas.drawRect(rect, glowPaint)
             }
             if (glass) canvas.drawRect(rect.left, rect.top, rect.right, rect.centerY(), gloss)
@@ -788,7 +867,7 @@ object IslandOverlayManager {
                 canvas.drawRoundRect(rect, radius, radius, edge)
             } else if (p > 0.01f) {
                 edge.shader = null
-                edge.color = ColorUtils.setAlphaComponent(Color.WHITE, (0x30 * p).roundToInt())
+                edge.color = ColorUtils.setAlphaComponent(Color.WHITE, (edgeAlpha * p).roundToInt())
                 canvas.drawRoundRect(rect, radius, radius, edge)
             }
         }

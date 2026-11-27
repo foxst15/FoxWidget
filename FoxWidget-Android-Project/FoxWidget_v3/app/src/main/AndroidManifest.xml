@@ -5,6 +5,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
@@ -36,6 +38,12 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".AdvancedSettingsActivity"
+            android:exported="false"
+            android:label="Tùy chỉnh nâng cao"
+            android:theme="@style/Theme.FoxWidget" />
+
         <receiver
             android:name=".widget.FoxWidgetProvider"
             android:exported="true"
@@ -52,6 +60,48 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/fox_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.FoxClockWidgetProvider"
+            android:exported="true"
+            android:label="@string/widget_clock_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.appwidget.action.APPWIDGET_OPTIONS_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/fox_clock_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.FoxWeatherWidgetProvider"
+            android:exported="true"
+            android:label="@string/widget_weather_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.appwidget.action.APPWIDGET_OPTIONS_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/fox_weather_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.FoxCalendarWidgetProvider"
+            android:exported="true"
+            android:label="@string/widget_calendar_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.appwidget.action.APPWIDGET_OPTIONS_CHANGED" />
+                <action android:name="com.foxwidget.app.ACTION_CAL_PREV" />
+                <action android:name="com.foxwidget.app.ACTION_CAL_NEXT" />
+                <action android:name="com.foxwidget.app.ACTION_CAL_TODAY" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/fox_calendar_widget_info" />
         </receiver>
 
         <receiver

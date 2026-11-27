@@ -23,6 +23,18 @@ class PrefsManager(context: Context) {
         const val ISLAND_COLOR_CUSTOM = 1
         const val ISLAND_STYLE_SOLID = 0
         const val ISLAND_STYLE_GLASS = 1
+
+        // Preset giao diện Dynamic Island theo từng hãng (0 = tự chọn theo hãng của máy)
+        const val ISLAND_PRESET_AUTO = 0
+        const val ISLAND_PRESET_CLASSIC = 1   // iOS Dynamic Island
+        const val ISLAND_PRESET_HYPER = 2     // Xiaomi HyperOS - Hyper Island
+        const val ISLAND_PRESET_FLUID = 3     // OPPO / OnePlus / realme - Fluid Cloud
+        const val ISLAND_PRESET_ATOMIC = 4    // vivo / iQOO - Atomic Island
+        const val ISLAND_PRESET_CAPSULE = 5   // HONOR - Magic Capsule
+        const val ISLAND_PRESET_NOWBAR = 6    // Samsung One UI - Now Bar / Live Notifications
+
+        const val TEMP_C = 0
+        const val TEMP_F = 1
     }
 
     var widgetStyle: Int
@@ -169,6 +181,90 @@ class PrefsManager(context: Context) {
     var islandLeftIconMode: Int
         get() = prefs.getInt("island_left_icon_mode", 0)
         set(value) = prefs.edit().putInt("island_left_icon_mode", value).apply()
+
+    // ===== Preset island theo hãng =====
+    var islandPreset: Int
+        get() = prefs.getInt("island_preset", ISLAND_PRESET_AUTO)
+        set(value) = prefs.edit().putInt("island_preset", value).apply()
+
+    var islandShowHoliday: Boolean
+        get() = prefs.getBoolean("island_show_holiday", true)
+        set(value) = prefs.edit().putBoolean("island_show_holiday", value).apply()
+
+    var islandShowEvent: Boolean
+        get() = prefs.getBoolean("island_show_event", true)
+        set(value) = prefs.edit().putBoolean("island_show_event", value).apply()
+
+    var islandWeatherDetail: Boolean
+        get() = prefs.getBoolean("island_weather_detail", true)
+        set(value) = prefs.edit().putBoolean("island_weather_detail", value).apply()
+
+    // ===== Widget: tùy chọn bổ sung =====
+    var tempUnit: Int
+        get() = prefs.getInt("temp_unit", TEMP_C)
+        set(value) = prefs.edit().putInt("temp_unit", value).apply()
+
+    var clock24h: Boolean
+        get() = prefs.getBoolean("clock_24h", true)
+        set(value) = prefs.edit().putBoolean("clock_24h", value).apply()
+
+    var showCanChi: Boolean
+        get() = prefs.getBoolean("show_can_chi", true)
+        set(value) = prefs.edit().putBoolean("show_can_chi", value).apply()
+
+    var showHolidayLine: Boolean
+        get() = prefs.getBoolean("show_holiday_line", true)
+        set(value) = prefs.edit().putBoolean("show_holiday_line", value).apply()
+
+    var showNextEvent: Boolean
+        get() = prefs.getBoolean("show_next_event", false)
+        set(value) = prefs.edit().putBoolean("show_next_event", value).apply()
+
+    var showWeatherDetail: Boolean
+        get() = prefs.getBoolean("show_weather_detail", true)
+        set(value) = prefs.edit().putBoolean("show_weather_detail", value).apply()
+
+    var forecastDays: Int
+        get() = prefs.getInt("forecast_days", 5)
+        set(value) = prefs.edit().putInt("forecast_days", value).apply()
+
+    var calendarWeekStartMonday: Boolean
+        get() = prefs.getBoolean("calendar_week_start_monday", true)
+        set(value) = prefs.edit().putBoolean("calendar_week_start_monday", value).apply()
+
+    var calendarShowLunar: Boolean
+        get() = prefs.getBoolean("calendar_show_lunar", true)
+        set(value) = prefs.edit().putBoolean("calendar_show_lunar", value).apply()
+
+    // ===== Vị trí thời tiết =====
+    var manualLocationEnabled: Boolean
+        get() = prefs.getBoolean("manual_location_enabled", false)
+        set(value) = prefs.edit().putBoolean("manual_location_enabled", value).apply()
+
+    var manualLat: Float
+        get() = prefs.getFloat("manual_lat", 15.1214f)
+        set(value) = prefs.edit().putFloat("manual_lat", value).apply()
+
+    var manualLon: Float
+        get() = prefs.getFloat("manual_lon", 108.8044f)
+        set(value) = prefs.edit().putFloat("manual_lon", value).apply()
+
+    var manualName: String
+        get() = prefs.getString("manual_name", "") ?: ""
+        set(value) = prefs.edit().putString("manual_name", value).apply()
+
+    var lastLat: Float
+        get() = prefs.getFloat("last_lat", 15.1214f)
+        set(value) = prefs.edit().putFloat("last_lat", value).apply()
+
+    var lastLon: Float
+        get() = prefs.getFloat("last_lon", 108.8044f)
+        set(value) = prefs.edit().putFloat("last_lon", value).apply()
+
+    // Dữ liệu thời tiết đầy đủ (JSON, xem WeatherHelper)
+    var weatherJson: String
+        get() = prefs.getString("weather_json", "") ?: ""
+        set(value) = prefs.edit().putString("weather_json", value).apply()
 
     fun resetIslandLayout() {
         prefs.edit()

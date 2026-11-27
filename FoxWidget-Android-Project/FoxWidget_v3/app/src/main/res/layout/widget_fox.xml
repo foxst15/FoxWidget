@@ -60,6 +60,17 @@
                     android:text="Âm lịch: 17 tháng 10"
                     android:textColor="#E6EAF5"
                     android:textSize="12.5sp" />
+
+                <TextView
+                    android:id="@+id/tv_widget_extra"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text=""
+                    android:textColor="#B8C2DC"
+                    android:textSize="11sp"
+                    android:visibility="gone" />
             </LinearLayout>
 
             <LinearLayout

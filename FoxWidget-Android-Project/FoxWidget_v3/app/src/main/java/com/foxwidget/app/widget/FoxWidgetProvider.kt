@@ -19,6 +19,7 @@ import com.foxwidget.app.util.DeviceTelemetryHelper
 import com.foxwidget.app.util.IslandOverlayManager
 import com.foxwidget.app.util.LiquidGlassRenderer
 import com.foxwidget.app.util.VietLunarCalendar
+import com.foxwidget.app.util.WeatherHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -35,6 +36,8 @@ class FoxWidgetProvider : AppWidgetProvider() {
         fun updateAllWidgets(context: Context) {
             // Dynamic Island dùng chung nhịp cập nhật với widget (tự dựng lại nếu tiến trình bị hệ thống dọn)
             IslandOverlayManager.sync(context)
+            // Các widget bổ sung (đồng hồ, thời tiết, lịch tháng) cập nhật chung nhịp
+            WidgetCommon.updateAll(context)
             val manager = AppWidgetManager.getInstance(context)
             val ids = manager.getAppWidgetIds(ComponentName(context, FoxWidgetProvider::class.java))
             for (id in ids) {
@@ -68,7 +71,8 @@ class FoxWidgetProvider : AppWidgetProvider() {
             val mutedTextColor = if (isLight) Color.parseColor("#7A859E") else Color.parseColor("#B8C2DC")
 
             // Đồng hồ & Lịch Dương / Âm
-            val timeStr = SimpleDateFormat("HH:mm", Locale.getDefault()).format(now.time)
+            val timePattern = if (prefs.clock24h) "HH:mm" else "h:mm a"
+            val timeStr = SimpleDateFormat(timePattern, Locale.getDefault()).format(now.time)
             views.setTextViewText(R.id.tv_widget_clock, timeStr)
             views.setTextColor(R.id.tv_widget_clock, primaryTextColor)
             val baseClockSp = if (isCompactHeight) 34f else 44f
@@ -91,16 +95,24 @@ class FoxWidgetProvider : AppWidgetProvider() {
                 if (prefs.showLunarDate) View.VISIBLE else View.GONE
             )
 
+            // Dòng phụ dưới Âm lịch: ngày lễ / sự kiện / Can Chi
+            val extra = if (isCompactHeight) "" else WidgetCommon.extraLine(context, prefs, now)
+            views.setTextViewText(R.id.tv_widget_extra, extra)
+            views.setTextColor(R.id.tv_widget_extra, mutedTextColor)
+            views.setViewVisibility(R.id.tv_widget_extra, if (extra.isEmpty()) View.GONE else View.VISIBLE)
+
             // Cột phải: Thiết bị, Thời tiết, Địa danh, % Pin, Nhiệt độ Pin
             val battery = DeviceTelemetryHelper.getBatteryStats(context)
-            views.setTextViewText(R.id.tv_widget_device, DeviceTelemetryHelper.getDeviceShortName())
+            views.setTextViewText(R.id.tv_widget_device, DeviceTelemetryHelper.getDeviceShortName(context))
             views.setTextColor(R.id.tv_widget_device, mutedTextColor)
             views.setViewVisibility(
                 R.id.tv_widget_device,
                 if (prefs.showDeviceName && !isCompactHeight) View.VISIBLE else View.GONE
             )
 
-            views.setTextViewText(R.id.tv_widget_temp, "${prefs.cachedTempC}°")
+            val snap = WeatherHelper.load(context)
+            val tempText = if (snap != null) WeatherHelper.formatTemp(snap.tempC, prefs.tempUnit) else "${prefs.cachedTempC}°"
+            views.setTextViewText(R.id.tv_widget_temp, tempText)
             views.setTextColor(R.id.tv_widget_temp, primaryTextColor)
             views.setTextViewText(R.id.tv_widget_location, "📍 ${prefs.cachedLocationName}")
             views.setTextColor(R.id.tv_widget_location, secondaryTextColor)

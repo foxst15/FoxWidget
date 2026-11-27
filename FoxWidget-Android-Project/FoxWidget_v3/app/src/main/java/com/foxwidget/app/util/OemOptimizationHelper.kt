@@ -20,13 +20,13 @@ object OemOptimizationHelper {
     fun detectOemProfile(): OemProfile {
         val mfg = (Build.MANUFACTURER ?: "").lowercase(Locale.ROOT)
         val brand = (Build.BRAND ?: "").lowercase(Locale.ROOT)
-        val androidVer = Build.VERSION.RELEASE ?: "16"
+        val realOs = DeviceInfoHelper.getOsInfo().fullDisplay
 
         return when {
             mfg.contains("xiaomi") || mfg.contains("redmi") || mfg.contains("poco") || brand.contains("xiaomi") -> {
                 OemProfile(
                     brandTitle = "Xiaomi / Redmi / POCO",
-                    osEstimate = "HyperOS 3 / HyperOS 2 (Android $androidVer)",
+                    osEstimate = realOs,
                     autostartGuide = "Cài đặt > Ứng dụng > Quyền > Tự khởi động nền (Background autostart) > Bật FoxWidget.",
                     batteryGuide = "Thông tin ứng dụng > Tiết kiệm pin > Chọn 'Không hạn chế' + Khóa app trong Đa nhiệm."
                 )
@@ -34,7 +34,7 @@ object OemOptimizationHelper {
             mfg.contains("samsung") -> {
                 OemProfile(
                     brandTitle = "Samsung Galaxy",
-                    osEstimate = "One UI 8.5 / One UI 8 (Android $androidVer)",
+                    osEstimate = realOs,
                     autostartGuide = "One UI tự quản lý khởi động khi bạn loại bỏ app khỏi danh sách 'Ứng dụng nghỉ sâu'.",
                     batteryGuide = "Thông tin ứng dụng > Pin > Chọn 'Không bị hạn chế' (Unrestricted)."
                 )
@@ -42,7 +42,7 @@ object OemOptimizationHelper {
             mfg.contains("oppo") || mfg.contains("realme") || mfg.contains("oneplus") -> {
                 OemProfile(
                     brandTitle = "OPPO / OnePlus / Realme",
-                    osEstimate = "ColorOS 17 / ColorOS 16 (Android $androidVer)",
+                    osEstimate = realOs,
                     autostartGuide = "Quản lý ứng dụng > FoxWidget > Mức sử dụng pin > Bật 'Cho phép tự khởi động' & 'Cho phép hoạt động nền'.",
                     batteryGuide = "Tắt 'Tối ưu hóa mức sử dụng pin' và khóa FoxWidget trên thanh đa nhiệm."
                 )
@@ -50,7 +50,7 @@ object OemOptimizationHelper {
             mfg.contains("vivo") || mfg.contains("iqoo") -> {
                 OemProfile(
                     brandTitle = "vivo / iQOO",
-                    osEstimate = "OriginOS 6 / Funtouch OS 16 (Android $androidVer)",
+                    osEstimate = realOs,
                     autostartGuide = "iManager > Quản lý ứng dụng > Tự khởi động > Bật FoxWidget.",
                     batteryGuide = "Cài đặt > Pin > Mức tiêu thụ điện năng cao ở nền > Bật cho FoxWidget."
                 )
@@ -58,7 +58,7 @@ object OemOptimizationHelper {
             mfg.contains("honor") -> {
                 OemProfile(
                     brandTitle = "HONOR",
-                    osEstimate = "MagicOS 10 / MagicOS 9 (Android $androidVer)",
+                    osEstimate = realOs,
                     autostartGuide = "Cài đặt > Ứng dụng > Khởi chạy ứng dụng > Tắt 'Quản lý tự động' cho FoxWidget và bật cả 3 mục thủ công.",
                     batteryGuide = "Thông tin ứng dụng > Pin > Chọn 'Không hạn chế'."
                 )
@@ -66,7 +66,7 @@ object OemOptimizationHelper {
             else -> {
                 OemProfile(
                     brandTitle = Build.MANUFACTURER.replaceFirstChar { it.uppercase() },
-                    osEstimate = "Android $androidVer (AOSP / Pixel UI)",
+                    osEstimate = realOs,
                     autostartGuide = "Hệ điều hành chuẩn tự động duy trì AppWidget sau khi khởi động lại máy.",
                     batteryGuide = "Thông tin ứng dụng > Mức sử dụng pin của ứng dụng > Chọn 'Không hạn chế'."
                 )

@@ -35,6 +35,7 @@ import com.google.android.material.button.MaterialButton
 import com.foxwidget.app.data.PrefsManager
 import com.foxwidget.app.databinding.ActivityMainBinding
 import com.foxwidget.app.service.FoxMonitorService
+import com.foxwidget.app.util.DeviceInfoHelper
 import com.foxwidget.app.util.DeviceTelemetryHelper
 import com.foxwidget.app.util.IslandOverlayManager
 import com.foxwidget.app.util.LiquidGlassRenderer
@@ -568,7 +569,7 @@ class MainActivity : AppCompatActivity() {
         binding.tvPreviewLunar.visibility = if (prefs.showLunarDate) View.VISIBLE else View.GONE
 
         val battery = DeviceTelemetryHelper.getBatteryStats(this)
-        binding.tvPreviewDevice.text = "📱 ${DeviceTelemetryHelper.getDeviceShortName()}"
+        binding.tvPreviewDevice.text = "📱 ${DeviceTelemetryHelper.getDeviceShortName(this)}"
         binding.tvPreviewDevice.visibility = if (prefs.showDeviceName) View.VISIBLE else View.GONE
 
         binding.tvPreviewTemp.text = "${prefs.cachedTempC}°"
@@ -1099,6 +1100,9 @@ class MainActivity : AppCompatActivity() {
         binding.tvHeaderVersion.text = "v$versionName"
         binding.tvInfoAppVersion.text = "Phiên bản $versionName"
 
+        binding.btnOpenAdvanced.setOnClickListener {
+            startActivity(Intent(this, AdvancedSettingsActivity::class.java))
+        }
         binding.btnContactFacebook.setOnClickListener { openLink(URL_FACEBOOK) }
         binding.btnContactTiktok.setOnClickListener { openLink(URL_TIKTOK) }
         binding.btnContactEmail.setOnClickListener {
@@ -1124,9 +1128,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun refreshInfoPage() {
         val oem = OemOptimizationHelper.detectOemProfile()
-        binding.tvInfoDeviceName.text = DeviceTelemetryHelper.getDeviceShortName()
-        binding.tvInfoOs.text = "${oem.brandTitle} · ${oem.osEstimate}"
-        binding.tvInfoAndroid.text = "Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})"
+        val os = DeviceInfoHelper.getOsInfo()
+        binding.tvInfoDeviceName.text = DeviceInfoHelper.getNameWithCode(this)
+        binding.tvInfoOs.text = "${oem.brandTitle} · ${os.skinDisplay}"
+        binding.tvInfoAndroid.text = buildString {
+            append("Android ${os.androidVersion} (API ${os.apiLevel})")
+            if (os.securityPatch.isNotBlank()) append(" · Bản vá ${os.securityPatch}")
+        }
     }
 
     companion object {
