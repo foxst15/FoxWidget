@@ -134,10 +134,7 @@ class PrefsManager(context: Context) {
 
     // 0 = theo màu hệ thống/hãng (Android 12+), 1 = tùy chỉnh. Máy cũ mặc định tùy chỉnh.
     var islandColorMode: Int
-        get() = prefs.getInt(
-            "island_color_mode",
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) ISLAND_COLOR_SYSTEM else ISLAND_COLOR_CUSTOM
-        )
+        get() = prefs.getInt("island_color_mode", ISLAND_COLOR_CUSTOM)
         set(value) = prefs.edit().putInt("island_color_mode", value).apply()
 
     var islandCustomColor: Int
@@ -148,11 +145,40 @@ class PrefsManager(context: Context) {
         get() = prefs.getInt("island_style", ISLAND_STYLE_SOLID)
         set(value) = prefs.edit().putInt("island_style", value).apply()
 
+    // Độ dài viên thuốc (dp) - kéo dài tùy ý
+    var islandWidthDp: Int
+        get() = prefs.getInt("island_width_dp", 150)
+        set(value) = prefs.edit().putInt("island_width_dp", value).apply()
+
+    // Chiều cao viên thuốc (dp) - chỉ dùng khi tắt tự căn camera
+    var islandHeightDp: Int
+        get() = prefs.getInt("island_height_dp", 36)
+        set(value) = prefs.edit().putInt("island_height_dp", value).apply()
+
+    // Khoảng trống ở giữa dành cho camera (dp) - chỉ dùng khi tắt tự căn camera
+    var islandGapDp: Int
+        get() = prefs.getInt("island_gap_dp", 54)
+        set(value) = prefs.edit().putInt("island_gap_dp", value).apply()
+
+    // Tự lấy vị trí/kích thước camera đục lỗ từ hệ thống để căn viên thuốc
+    var islandAutoCutout: Boolean
+        get() = prefs.getBoolean("island_auto_cutout", true)
+        set(value) = prefs.edit().putBoolean("island_auto_cutout", value).apply()
+
+    // Icon bên trái: 0 = logo FoxWidget, 1 = biểu tượng của thông tin đang hiển thị
+    var islandLeftIconMode: Int
+        get() = prefs.getInt("island_left_icon_mode", 0)
+        set(value) = prefs.edit().putInt("island_left_icon_mode", value).apply()
+
     fun resetIslandLayout() {
         prefs.edit()
             .putInt("island_offset_y_dp", 6)
             .putInt("island_offset_x_dp", 0)
             .putInt("island_scale", 100)
+            .putInt("island_width_dp", 150)
+            .putInt("island_height_dp", 36)
+            .putInt("island_gap_dp", 54)
+            .putBoolean("island_auto_cutout", true)
             .apply()
     }
 

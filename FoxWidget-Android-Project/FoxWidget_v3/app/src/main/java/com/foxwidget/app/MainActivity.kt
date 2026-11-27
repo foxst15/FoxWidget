@@ -832,6 +832,63 @@ class MainActivity : AppCompatActivity() {
             IslandOverlayManager.sync(this)
         }
 
+        binding.swIslandAutoCutout.setOnCheckedChangeListener { _, checked ->
+            if (islandUiUpdating) return@setOnCheckedChangeListener
+            prefs.islandAutoCutout = checked
+            IslandOverlayManager.sync(this)
+            refreshIslandPage()
+            binding.root.postDelayed({ refreshIslandPage() }, 500)
+        }
+        bindStepperSlider(
+            seekBar = binding.seekIslandWidth,
+            btnMinus = binding.btnIslandWidthMinus,
+            btnPlus = binding.btnIslandWidthPlus,
+            minVal = 60,
+            maxVal = 320,
+            step = 5,
+            initial = prefs.islandWidthDp
+        ) { v ->
+            prefs.islandWidthDp = v
+            updateIslandLabels()
+            IslandOverlayManager.sync(this)
+        }
+        bindStepperSlider(
+            seekBar = binding.seekIslandHeight,
+            btnMinus = binding.btnIslandHeightMinus,
+            btnPlus = binding.btnIslandHeightPlus,
+            minVal = 24,
+            maxVal = 56,
+            step = 1,
+            initial = prefs.islandHeightDp
+        ) { v ->
+            prefs.islandHeightDp = v
+            updateIslandLabels()
+            IslandOverlayManager.sync(this)
+        }
+        bindStepperSlider(
+            seekBar = binding.seekIslandGap,
+            btnMinus = binding.btnIslandGapMinus,
+            btnPlus = binding.btnIslandGapPlus,
+            minVal = 20,
+            maxVal = 140,
+            step = 2,
+            initial = prefs.islandGapDp
+        ) { v ->
+            prefs.islandGapDp = v
+            updateIslandLabels()
+            IslandOverlayManager.sync(this)
+        }
+        binding.btnIslandIconLogo.setOnClickListener {
+            prefs.islandLeftIconMode = 0
+            refreshIslandPage()
+            IslandOverlayManager.sync(this)
+        }
+        binding.btnIslandIconInfo.setOnClickListener {
+            prefs.islandLeftIconMode = 1
+            refreshIslandPage()
+            IslandOverlayManager.sync(this)
+        }
+
         binding.btnIslandModeSystem.setOnClickListener {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
                 Toast.makeText(this, "Máy này chưa có màu hệ thống động, hãy chọn màu Tùy chỉnh", Toast.LENGTH_LONG).show()
@@ -876,7 +933,11 @@ class MainActivity : AppCompatActivity() {
             binding.seekIslandY.progress = prefs.islandOffsetYDp
             binding.seekIslandX.progress = prefs.islandOffsetXDp + 150
             binding.seekIslandScale.progress = prefs.islandScale - 70
+            binding.seekIslandWidth.progress = prefs.islandWidthDp - 60
+            binding.seekIslandHeight.progress = prefs.islandHeightDp - 24
+            binding.seekIslandGap.progress = prefs.islandGapDp - 20
             updateIslandLabels()
+            refreshIslandPage()
             IslandOverlayManager.sync(this)
             Toast.makeText(this, "Đã đặt lại vị trí & kích thước Dynamic Island", Toast.LENGTH_SHORT).show()
         }
@@ -911,7 +972,21 @@ class MainActivity : AppCompatActivity() {
         binding.swIslandWeather.isChecked = prefs.islandShowWeather
         binding.swIslandLocation.isChecked = prefs.islandShowLocation
         binding.swIslandBattery.isChecked = prefs.islandShowBattery
+        binding.swIslandAutoCutout.isChecked = prefs.islandAutoCutout
         islandUiUpdating = false
+
+        // Vị trí/chiều cao/khoảng trống thủ công: chỉ cần khi tắt tự căn hoặc máy không báo camera
+        val detected = IslandOverlayManager.isCutoutDetected()
+        val showManual = !prefs.islandAutoCutout || detected == false
+        binding.llIslandManual.visibility = if (showManual) View.VISIBLE else View.GONE
+        binding.tvIslandCutoutHint.text = when {
+            !prefs.islandAutoCutout -> "Đang căn thủ công: tự chỉnh vị trí, chiều cao và khoảng trống camera bên dưới."
+            detected == true -> "Đã nhận diện camera của máy: viên thuốc tự căn khít vị trí camera, chừa trống phần giữa."
+            detected == false -> "Máy không báo vị trí camera, đang dùng thông số thủ công bên dưới."
+            else -> "Sẽ tự lấy vị trí camera của máy khi Dynamic Island hiển thị."
+        }
+        setSegment(binding.btnIslandIconLogo, prefs.islandLeftIconMode == 0)
+        setSegment(binding.btnIslandIconInfo, prefs.islandLeftIconMode == 1)
 
         val granted = IslandOverlayManager.canDrawOverlays(this)
         binding.tvIslandPermStatus.text = if (granted) {
@@ -1008,15 +1083,18 @@ class MainActivity : AppCompatActivity() {
             x < 0 -> "Lệch ngang: ${-x}dp sang trái"
             else -> "Lệch ngang: ${x}dp sang phải"
         }
-        binding.tvLabelIslandScale.text = "Kích thước: ${prefs.islandScale}%"
+        binding.tvLabelIslandScale.text = "Kích thước chữ & icon: ${prefs.islandScale}%"
+        binding.tvLabelIslandWidth.text = "Độ dài viên thuốc: ${prefs.islandWidthDp}dp"
+        binding.tvLabelIslandHeight.text = "Chiều cao: ${prefs.islandHeightDp}dp"
+        binding.tvLabelIslandGap.text = "Khoảng trống giữa (camera): ${prefs.islandGapDp}dp"
     }
 
     // ==================== TAB 6: THÔNG TIN ====================
     private fun setupInfoTab() {
         val versionName = try {
-            packageManager.getPackageInfo(packageName, 0).versionName ?: "1.3"
+            packageManager.getPackageInfo(packageName, 0).versionName ?: "1.4"
         } catch (_: Exception) {
-            "1.3"
+            "1.4"
         }
         binding.tvHeaderVersion.text = "v$versionName"
         binding.tvInfoAppVersion.text = "Phiên bản $versionName"
