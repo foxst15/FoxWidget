@@ -13,7 +13,7 @@
 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="FoxWidget" android:textColor="#FFFFFF" android:textSize="22sp" android:textStyle="bold" />
 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Liquid Glass · Lịch Việt · Realtime" android:textColor="#E9E1FF" android:textSize="12sp" android:layout_marginTop="2dp" />
 </LinearLayout>
-<TextView android:id="@+id/tv_header_version" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="v1.4" android:textColor="#FFFFFF" android:textSize="12.5sp" android:textStyle="bold" android:background="@drawable/bg_version_pill" android:paddingHorizontal="12dp" android:paddingVertical="6dp" />
+<TextView android:id="@+id/tv_header_version" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="v1.6" android:textColor="#FFFFFF" android:textSize="12.5sp" android:textStyle="bold" android:background="@drawable/bg_version_pill" android:paddingHorizontal="12dp" android:paddingVertical="6dp" />
 </LinearLayout>
 </FrameLayout>
 
@@ -267,37 +267,38 @@
 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="VỊ TRÍ &amp; KÍCH THƯỚC" android:textColor="@color/fox_text_sub" android:textSize="11.5sp" android:textStyle="bold" android:letterSpacing="0.06" />
 <com.google.android.material.switchmaterial.SwitchMaterial android:id="@+id/sw_island_auto_cutout" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="46dp" android:layout_marginTop="6dp" android:text="Tự căn theo camera (khuyên dùng)" android:textColor="@color/fox_text" android:textSize="14sp"/>
 <TextView android:id="@+id/tv_island_cutout_hint" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="" android:textColor="@color/fox_text_sub" android:textSize="12sp" android:layout_marginBottom="2dp" />
-<TextView android:id="@+id/tv_label_island_width" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Độ dài viên thuốc: 150dp" android:textColor="@color/fox_text" android:textSize="13sp" android:textStyle="bold" android:layout_marginTop="8dp" />
+<TextView android:id="@+id/tv_label_island_width" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Độ dài viên thuốc: 124dp" android:textColor="@color/fox_text" android:textSize="13sp" android:textStyle="bold" android:layout_marginTop="8dp" />
 <LinearLayout android:layout_width="match_parent" android:layout_height="40dp" android:layout_marginTop="4dp" android:gravity="center_vertical" android:orientation="horizontal">
 <TextView android:id="@+id/btn_island_width_minus" android:layout_width="34dp" android:layout_height="34dp" android:background="@drawable/bg_stepper_btn" android:gravity="center" android:text="−" android:textColor="#6C47FF" android:textSize="18sp" android:textStyle="bold"/>
 <SeekBar android:id="@+id/seek_island_width" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"/>
 <TextView android:id="@+id/btn_island_width_plus" android:layout_width="34dp" android:layout_height="34dp" android:background="@drawable/bg_stepper_btn" android:gravity="center" android:text="+" android:textColor="#6C47FF" android:textSize="18sp" android:textStyle="bold"/>
 </LinearLayout>
-<TextView android:id="@+id/tv_label_island_scale" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Kích thước chữ &amp; icon: 100%" android:textColor="@color/fox_text" android:textSize="13sp" android:textStyle="bold" android:layout_marginTop="10dp" />
+<TextView android:id="@+id/tv_label_island_scale" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Kích thước viên thuốc: 100%" android:textColor="@color/fox_text" android:textSize="13sp" android:textStyle="bold" android:layout_marginTop="10dp" />
 <LinearLayout android:layout_width="match_parent" android:layout_height="40dp" android:layout_marginTop="4dp" android:gravity="center_vertical" android:orientation="horizontal">
 <TextView android:id="@+id/btn_island_scale_minus" android:layout_width="34dp" android:layout_height="34dp" android:background="@drawable/bg_stepper_btn" android:gravity="center" android:text="−" android:textColor="#6C47FF" android:textSize="18sp" android:textStyle="bold"/>
 <SeekBar android:id="@+id/seek_island_scale" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"/>
 <TextView android:id="@+id/btn_island_scale_plus" android:layout_width="34dp" android:layout_height="34dp" android:background="@drawable/bg_stepper_btn" android:gravity="center" android:text="+" android:textColor="#6C47FF" android:textSize="18sp" android:textStyle="bold"/>
 </LinearLayout>
-<LinearLayout android:id="@+id/ll_island_manual" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
-<TextView android:id="@+id/tv_label_island_y" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Cách mép trên: 6dp" android:textColor="@color/fox_text" android:textSize="13sp" android:textStyle="bold" android:layout_marginTop="10dp" />
+
+<TextView android:id="@+id/tv_label_island_y" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Lên/xuống: mặc định" android:textColor="@color/fox_text" android:textSize="13sp" android:textStyle="bold" android:layout_marginTop="10dp" />
 <LinearLayout android:layout_width="match_parent" android:layout_height="40dp" android:layout_marginTop="4dp" android:gravity="center_vertical" android:orientation="horizontal">
 <TextView android:id="@+id/btn_island_y_minus" android:layout_width="34dp" android:layout_height="34dp" android:background="@drawable/bg_stepper_btn" android:gravity="center" android:text="−" android:textColor="#6C47FF" android:textSize="18sp" android:textStyle="bold"/>
 <SeekBar android:id="@+id/seek_island_y" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"/>
 <TextView android:id="@+id/btn_island_y_plus" android:layout_width="34dp" android:layout_height="34dp" android:background="@drawable/bg_stepper_btn" android:gravity="center" android:text="+" android:textColor="#6C47FF" android:textSize="18sp" android:textStyle="bold"/>
 </LinearLayout>
-<TextView android:id="@+id/tv_label_island_x" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Lệch ngang: giữa màn hình" android:textColor="@color/fox_text" android:textSize="13sp" android:textStyle="bold" android:layout_marginTop="10dp" />
+<TextView android:id="@+id/tv_label_island_x" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Trái/phải: căn giữa" android:textColor="@color/fox_text" android:textSize="13sp" android:textStyle="bold" android:layout_marginTop="10dp" />
 <LinearLayout android:layout_width="match_parent" android:layout_height="40dp" android:layout_marginTop="4dp" android:gravity="center_vertical" android:orientation="horizontal">
 <TextView android:id="@+id/btn_island_x_minus" android:layout_width="34dp" android:layout_height="34dp" android:background="@drawable/bg_stepper_btn" android:gravity="center" android:text="−" android:textColor="#6C47FF" android:textSize="18sp" android:textStyle="bold"/>
 <SeekBar android:id="@+id/seek_island_x" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"/>
 <TextView android:id="@+id/btn_island_x_plus" android:layout_width="34dp" android:layout_height="34dp" android:background="@drawable/bg_stepper_btn" android:gravity="center" android:text="+" android:textColor="#6C47FF" android:textSize="18sp" android:textStyle="bold"/>
 </LinearLayout>
-<TextView android:id="@+id/tv_label_island_height" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Chiều cao: 36dp" android:textColor="@color/fox_text" android:textSize="13sp" android:textStyle="bold" android:layout_marginTop="10dp" />
+<TextView android:id="@+id/tv_label_island_height" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Chiều cao: mặc định" android:textColor="@color/fox_text" android:textSize="13sp" android:textStyle="bold" android:layout_marginTop="10dp" />
 <LinearLayout android:layout_width="match_parent" android:layout_height="40dp" android:layout_marginTop="4dp" android:gravity="center_vertical" android:orientation="horizontal">
 <TextView android:id="@+id/btn_island_height_minus" android:layout_width="34dp" android:layout_height="34dp" android:background="@drawable/bg_stepper_btn" android:gravity="center" android:text="−" android:textColor="#6C47FF" android:textSize="18sp" android:textStyle="bold"/>
 <SeekBar android:id="@+id/seek_island_height" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"/>
 <TextView android:id="@+id/btn_island_height_plus" android:layout_width="34dp" android:layout_height="34dp" android:background="@drawable/bg_stepper_btn" android:gravity="center" android:text="+" android:textColor="#6C47FF" android:textSize="18sp" android:textStyle="bold"/>
 </LinearLayout>
+<LinearLayout android:id="@+id/ll_island_manual" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
 <TextView android:id="@+id/tv_label_island_gap" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Khoảng trống giữa (camera): 54dp" android:textColor="@color/fox_text" android:textSize="13sp" android:textStyle="bold" android:layout_marginTop="10dp" />
 <LinearLayout android:layout_width="match_parent" android:layout_height="40dp" android:layout_marginTop="4dp" android:gravity="center_vertical" android:orientation="horizontal">
 <TextView android:id="@+id/btn_island_gap_minus" android:layout_width="34dp" android:layout_height="34dp" android:background="@drawable/bg_stepper_btn" android:gravity="center" android:text="−" android:textColor="#6C47FF" android:textSize="18sp" android:textStyle="bold"/>
@@ -322,7 +323,7 @@
 <com.google.android.material.imageview.ShapeableImageView android:layout_width="96dp" android:layout_height="96dp" android:padding="1.5dp" android:scaleType="centerCrop" android:src="@drawable/fox_logo" android:contentDescription="FoxWidget logo" app:shapeAppearanceOverlay="@style/Fox.Shape.LogoLarge" app:strokeColor="#80FFFFFF" app:strokeWidth="1.5dp"/>
 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="FoxWidget" android:textColor="#FFFFFF" android:textSize="24sp" android:textStyle="bold" android:layout_marginTop="12dp" />
 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Liquid Glass · Lịch Việt · Realtime" android:textColor="#E4DAFF" android:textSize="12.5sp" android:layout_marginTop="2dp" />
-<TextView android:id="@+id/tv_info_app_version" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Phiên bản 1.5" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:layout_marginTop="12dp" android:background="@drawable/bg_version_pill" android:paddingHorizontal="14dp" android:paddingVertical="5dp" />
+<TextView android:id="@+id/tv_info_app_version" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Phiên bản 1.6" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:layout_marginTop="12dp" android:background="@drawable/bg_version_pill" android:paddingHorizontal="14dp" android:paddingVertical="5dp" />
 </LinearLayout>
 <LinearLayout android:id="@+id/btn_open_advanced" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:background="@drawable/bg_card_white" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:orientation="horizontal" android:padding="16dp">
 <ImageView android:layout_width="38dp" android:layout_height="38dp" android:background="@drawable/bg_icon_tile" android:padding="8dp" android:src="@drawable/ic_sliders" android:tint="#6C47FF" android:contentDescription="@null"/>
@@ -331,6 +332,14 @@
 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Kiểu island theo hãng · Thời tiết · Lịch · Thêm widget mới" android:textColor="@color/fox_text_sub" android:textSize="11.5sp" />
 </LinearLayout>
 <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_chevron_right" android:contentDescription="@null"/>
+</LinearLayout>
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:background="@drawable/bg_card_white" android:orientation="vertical" android:padding="16dp">
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="NGÔN NGỮ" android:textColor="@color/fox_text_sub" android:textSize="11.5sp" android:textStyle="bold" android:letterSpacing="0.06"/>
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tiếng Việt là mặc định, tiếng Anh là tùy chọn phụ." android:textColor="@color/fox_text_sub" android:textSize="12.5sp" android:layout_marginTop="6dp"/>
+<LinearLayout android:layout_width="match_parent" android:layout_height="44dp" android:layout_marginTop="10dp" android:background="@drawable/bg_segment_container" android:orientation="horizontal" android:padding="3dp">
+<TextView android:id="@+id/btn_lang_vi" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:text="Tiếng Việt (mặc định)" android:textColor="@color/fox_text_sub" android:textSize="13sp" android:textStyle="bold"/>
+<TextView android:id="@+id/btn_lang_en" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:text="English" android:textColor="@color/fox_text_sub" android:textSize="13sp" android:textStyle="bold"/>
+</LinearLayout>
 </LinearLayout>
 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:background="@drawable/bg_card_white" android:orientation="vertical" android:padding="16dp">
 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="THIẾT BỊ CỦA BẠN" android:textColor="@color/fox_text_sub" android:textSize="11.5sp" android:textStyle="bold" android:letterSpacing="0.06" />

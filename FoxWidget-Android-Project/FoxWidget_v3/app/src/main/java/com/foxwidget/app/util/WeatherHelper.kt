@@ -110,7 +110,7 @@ object WeatherHelper {
         prefs.weatherJson = o.toString()
         // Giữ tương thích với phần cũ (widget chính, island)
         prefs.cachedTempC = s.tempC.roundToInt()
-        prefs.cachedWeatherDesc = describe(s.code, s.isDay)
+        prefs.cachedWeatherDesc = describeVi(s.code, s.isDay)
     }
 
     // ------------------------------------------------------------------ làm mới
@@ -388,7 +388,11 @@ object WeatherHelper {
 
     // ------------------------------------------------------------------ mô tả / định dạng
 
-    fun describe(code: Int, isDay: Boolean = true): String = when (code) {
+    /** Mô tả thời tiết theo ngôn ngữ đang chọn. */
+    fun describe(code: Int, isDay: Boolean = true): String = I18n.tr(describeVi(code, isDay))
+
+    /** Mô tả gốc bằng tiếng Việt: dùng để lưu cache (đổi ngôn ngữ vẫn dịch đúng khi hiển thị). */
+    fun describeVi(code: Int, isDay: Boolean = true): String = when (code) {
         0 -> if (isDay) "Trời quang" else "Trời quang, đêm trong"
         1 -> if (isDay) "Nắng nhẹ" else "Ít mây"
         2 -> "Có mây rải rác"
@@ -426,21 +430,21 @@ object WeatherHelper {
 
     fun aqiLabel(aqi: Int): String = when {
         aqi < 0 -> ""
-        aqi <= 50 -> "Tốt"
-        aqi <= 100 -> "Trung bình"
-        aqi <= 150 -> "Kém"
-        aqi <= 200 -> "Xấu"
-        aqi <= 300 -> "Rất xấu"
-        else -> "Nguy hại"
+        aqi <= 50 -> I18n.tr("Tốt")
+        aqi <= 100 -> I18n.tr("Trung bình")
+        aqi <= 150 -> I18n.tr("Kém")
+        aqi <= 200 -> I18n.tr("Xấu")
+        aqi <= 300 -> I18n.tr("Rất xấu")
+        else -> I18n.tr("Nguy hại")
     }
 
     fun uvLabel(uv: Double): String = when {
         uv < 0 -> ""
-        uv < 3 -> "Thấp"
-        uv < 6 -> "Trung bình"
-        uv < 8 -> "Cao"
-        uv < 11 -> "Rất cao"
-        else -> "Cực cao"
+        uv < 3 -> I18n.tr("Thấp")
+        uv < 6 -> I18n.tr("Trung bình")
+        uv < 8 -> I18n.tr("Cao")
+        uv < 11 -> I18n.tr("Rất cao")
+        else -> I18n.tr("Cực cao")
     }
 
     /** 28.4 -> "28°" hoặc "83°" nếu dùng °F. */
@@ -456,13 +460,13 @@ object WeatherHelper {
             val d = SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(date) ?: return date
             val cal = Calendar.getInstance().apply { time = d }
             when (cal.get(Calendar.DAY_OF_WEEK)) {
-                Calendar.MONDAY -> "T2"
-                Calendar.TUESDAY -> "T3"
-                Calendar.WEDNESDAY -> "T4"
-                Calendar.THURSDAY -> "T5"
-                Calendar.FRIDAY -> "T6"
-                Calendar.SATURDAY -> "T7"
-                else -> "CN"
+                Calendar.MONDAY -> I18n.tr("T2")
+                Calendar.TUESDAY -> I18n.tr("T3")
+                Calendar.WEDNESDAY -> I18n.tr("T4")
+                Calendar.THURSDAY -> I18n.tr("T5")
+                Calendar.FRIDAY -> I18n.tr("T6")
+                Calendar.SATURDAY -> I18n.tr("T7")
+                else -> I18n.tr("CN")
             }
         } catch (_: Exception) {
             date

@@ -1,6 +1,7 @@
 package com.foxwidget.app.service
 
 import android.app.AlarmManager
+import com.foxwidget.app.util.I18n
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -166,7 +167,7 @@ class FoxMonitorService : Service() {
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification_fox)
             .setContentTitle("FoxWidget Liquid Glass · Pin ${stats.levelPercent}% · $tempFormatted")
-            .setContentText("Kính lỏng quang học, Lịch Việt & Đồng hồ realtime đang hoạt động")
+            .setContentText(I18n.tr("Kính lỏng quang học, Lịch Việt & Đồng hồ realtime đang hoạt động"))
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
@@ -181,7 +182,7 @@ class FoxMonitorService : Service() {
                 "FoxWidget Realtime Monitor",
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
-                description = "Hiển thị % pin, nhiệt độ pin và giữ widget cập nhật đúng giờ"
+                description = I18n.tr("Hiển thị % pin, nhiệt độ pin và giữ widget cập nhật đúng giờ")
                 setShowBadge(false)
             }
             val nm = getSystemService(NotificationManager::class.java)

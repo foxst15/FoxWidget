@@ -155,23 +155,31 @@ object VietLunarCalendar {
         return "$can $chi"
     }
 
+    /** Thứ trong tuần theo ngôn ngữ đang chọn (tên hàm giữ nguyên để không đổi chỗ gọi). */
     fun getVietnameseDayOfWeek(cal: Calendar): String {
-        return when (cal.get(Calendar.DAY_OF_WEEK)) {
-            Calendar.MONDAY -> "Thứ Hai"
-            Calendar.TUESDAY -> "Thứ Ba"
-            Calendar.WEDNESDAY -> "Thứ Tư"
-            Calendar.THURSDAY -> "Thứ Năm"
-            Calendar.FRIDAY -> "Thứ Sáu"
-            Calendar.SATURDAY -> "Thứ Bảy"
-            else -> "Chủ Nhật"
-        }
+        return I18n.tr(
+            when (cal.get(Calendar.DAY_OF_WEEK)) {
+                Calendar.MONDAY -> "Thứ Hai"
+                Calendar.TUESDAY -> "Thứ Ba"
+                Calendar.WEDNESDAY -> "Thứ Tư"
+                Calendar.THURSDAY -> "Thứ Năm"
+                Calendar.FRIDAY -> "Thứ Sáu"
+                Calendar.SATURDAY -> "Thứ Bảy"
+                else -> "Chủ Nhật"
+            }
+        )
     }
+
+    val EN_MONTHS = arrayOf(
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    )
 
     fun formatSolarDateFull(cal: Calendar): String {
         val dow = getVietnameseDayOfWeek(cal)
         val day = cal.get(Calendar.DAY_OF_MONTH)
         val month = cal.get(Calendar.MONTH) + 1
-        return "$dow, $day tháng $month"
+        return if (I18n.isEnglish) "$dow, ${EN_MONTHS[month - 1]} $day" else "$dow, $day tháng $month"
     }
 
     fun formatLunarDateFull(cal: Calendar): String {
@@ -180,8 +188,8 @@ object VietLunarCalendar {
             cal.get(Calendar.MONTH) + 1,
             cal.get(Calendar.YEAR)
         )
-        val leapText = if (lunar.isLeap) " (nhuận)" else ""
-        return "Âm lịch: ${lunar.day} tháng ${lunar.month}$leapText"
+        val leapText = if (lunar.isLeap) I18n.tr(" (nhuận)") else ""
+        return I18n.tf("Âm lịch: {0} tháng {1}{2}", lunar.day, lunar.month, leapText)
     }
 
     fun getCurrentWeekStrip(now: Calendar = Calendar.getInstance()): List<WeekDayItem> {
@@ -194,7 +202,7 @@ object VietLunarCalendar {
         val offsetToMonday = if (dow == Calendar.SUNDAY) -6 else (Calendar.MONDAY - dow)
         cursor.add(Calendar.DAY_OF_MONTH, offsetToMonday)
 
-        val labels = arrayOf("T2", "T3", "T4", "T5", "T6", "T7", "CN")
+        val labels = arrayOf("T2", "T3", "T4", "T5", "T6", "T7", "CN").map { I18n.tr(it) }
         val list = mutableListOf<WeekDayItem>()
         for (i in 0 until 7) {
             val d = cursor.get(Calendar.DAY_OF_MONTH)

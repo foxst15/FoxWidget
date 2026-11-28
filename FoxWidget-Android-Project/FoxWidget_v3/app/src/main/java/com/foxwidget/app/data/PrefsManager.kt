@@ -159,8 +159,26 @@ class PrefsManager(context: Context) {
 
     // Độ dài viên thuốc (dp) - kéo dài tùy ý
     var islandWidthDp: Int
-        get() = prefs.getInt("island_width_dp", 150)
-        set(value) = prefs.edit().putInt("island_width_dp", value).apply()
+        get() = prefs.getInt("island_width_v2", 124)
+        set(value) = prefs.edit().putInt("island_width_v2", value).apply()
+
+    // Tinh chỉnh vị trí/chiều cao so với vị trí tự căn theo camera (dp). Luôn có tác dụng, kể cả khi tự căn camera.
+    var islandDy: Int
+        get() = prefs.getInt("island_dy", 0)
+        set(value) = prefs.edit().putInt("island_dy", value).apply()
+
+    var islandDx: Int
+        get() = prefs.getInt("island_dx", 0)
+        set(value) = prefs.edit().putInt("island_dx", value).apply()
+
+    var islandDh: Int
+        get() = prefs.getInt("island_dh", 0)
+        set(value) = prefs.edit().putInt("island_dh", value).apply()
+
+    // Ngôn ngữ giao diện: "vi" (mặc định) hoặc "en"
+    var language: String
+        get() = prefs.getString("app_language", "vi") ?: "vi"
+        set(value) = prefs.edit().putString("app_language", value).apply()
 
     // Chiều cao viên thuốc (dp) - chỉ dùng khi tắt tự căn camera
     var islandHeightDp: Int
@@ -268,11 +286,11 @@ class PrefsManager(context: Context) {
 
     fun resetIslandLayout() {
         prefs.edit()
-            .putInt("island_offset_y_dp", 6)
-            .putInt("island_offset_x_dp", 0)
+            .putInt("island_dy", 0)
+            .putInt("island_dx", 0)
+            .putInt("island_dh", 0)
             .putInt("island_scale", 100)
-            .putInt("island_width_dp", 150)
-            .putInt("island_height_dp", 36)
+            .putInt("island_width_v2", 124)
             .putInt("island_gap_dp", 54)
             .putBoolean("island_auto_cutout", true)
             .apply()

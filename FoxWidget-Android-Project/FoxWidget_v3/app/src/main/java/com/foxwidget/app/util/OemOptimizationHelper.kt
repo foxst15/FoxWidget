@@ -27,48 +27,48 @@ object OemOptimizationHelper {
                 OemProfile(
                     brandTitle = "Xiaomi / Redmi / POCO",
                     osEstimate = realOs,
-                    autostartGuide = "Cài đặt > Ứng dụng > Quyền > Tự khởi động nền (Background autostart) > Bật FoxWidget.",
-                    batteryGuide = "Thông tin ứng dụng > Tiết kiệm pin > Chọn 'Không hạn chế' + Khóa app trong Đa nhiệm."
+                    autostartGuide = I18n.tr("Cài đặt > Ứng dụng > Quyền > Tự khởi động nền (Background autostart) > Bật FoxWidget."),
+                    batteryGuide = I18n.tr("Thông tin ứng dụng > Tiết kiệm pin > Chọn 'Không hạn chế' + Khóa app trong Đa nhiệm.")
                 )
             }
             mfg.contains("samsung") -> {
                 OemProfile(
                     brandTitle = "Samsung Galaxy",
                     osEstimate = realOs,
-                    autostartGuide = "One UI tự quản lý khởi động khi bạn loại bỏ app khỏi danh sách 'Ứng dụng nghỉ sâu'.",
-                    batteryGuide = "Thông tin ứng dụng > Pin > Chọn 'Không bị hạn chế' (Unrestricted)."
+                    autostartGuide = I18n.tr("One UI tự quản lý khởi động khi bạn loại bỏ app khỏi danh sách 'Ứng dụng nghỉ sâu'."),
+                    batteryGuide = I18n.tr("Thông tin ứng dụng > Pin > Chọn 'Không bị hạn chế' (Unrestricted).")
                 )
             }
             mfg.contains("oppo") || mfg.contains("realme") || mfg.contains("oneplus") -> {
                 OemProfile(
                     brandTitle = "OPPO / OnePlus / Realme",
                     osEstimate = realOs,
-                    autostartGuide = "Quản lý ứng dụng > FoxWidget > Mức sử dụng pin > Bật 'Cho phép tự khởi động' & 'Cho phép hoạt động nền'.",
-                    batteryGuide = "Tắt 'Tối ưu hóa mức sử dụng pin' và khóa FoxWidget trên thanh đa nhiệm."
+                    autostartGuide = I18n.tr("Quản lý ứng dụng > FoxWidget > Mức sử dụng pin > Bật 'Cho phép tự khởi động' & 'Cho phép hoạt động nền'."),
+                    batteryGuide = I18n.tr("Tắt 'Tối ưu hóa mức sử dụng pin' và khóa FoxWidget trên thanh đa nhiệm.")
                 )
             }
             mfg.contains("vivo") || mfg.contains("iqoo") -> {
                 OemProfile(
                     brandTitle = "vivo / iQOO",
                     osEstimate = realOs,
-                    autostartGuide = "iManager > Quản lý ứng dụng > Tự khởi động > Bật FoxWidget.",
-                    batteryGuide = "Cài đặt > Pin > Mức tiêu thụ điện năng cao ở nền > Bật cho FoxWidget."
+                    autostartGuide = I18n.tr("iManager > Quản lý ứng dụng > Tự khởi động > Bật FoxWidget."),
+                    batteryGuide = I18n.tr("Cài đặt > Pin > Mức tiêu thụ điện năng cao ở nền > Bật cho FoxWidget.")
                 )
             }
             mfg.contains("honor") -> {
                 OemProfile(
                     brandTitle = "HONOR",
                     osEstimate = realOs,
-                    autostartGuide = "Cài đặt > Ứng dụng > Khởi chạy ứng dụng > Tắt 'Quản lý tự động' cho FoxWidget và bật cả 3 mục thủ công.",
-                    batteryGuide = "Thông tin ứng dụng > Pin > Chọn 'Không hạn chế'."
+                    autostartGuide = I18n.tr("Cài đặt > Ứng dụng > Khởi chạy ứng dụng > Tắt 'Quản lý tự động' cho FoxWidget và bật cả 3 mục thủ công."),
+                    batteryGuide = I18n.tr("Thông tin ứng dụng > Pin > Chọn 'Không hạn chế'.")
                 )
             }
             else -> {
                 OemProfile(
                     brandTitle = Build.MANUFACTURER.replaceFirstChar { it.uppercase() },
                     osEstimate = realOs,
-                    autostartGuide = "Hệ điều hành chuẩn tự động duy trì AppWidget sau khi khởi động lại máy.",
-                    batteryGuide = "Thông tin ứng dụng > Mức sử dụng pin của ứng dụng > Chọn 'Không hạn chế'."
+                    autostartGuide = I18n.tr("Hệ điều hành chuẩn tự động duy trì AppWidget sau khi khởi động lại máy."),
+                    batteryGuide = I18n.tr("Thông tin ứng dụng > Mức sử dụng pin của ứng dụng > Chọn 'Không hạn chế'.")
                 )
             }
         }

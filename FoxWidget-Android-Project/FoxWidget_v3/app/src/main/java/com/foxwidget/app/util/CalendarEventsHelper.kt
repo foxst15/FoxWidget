@@ -33,7 +33,7 @@ object CalendarEventsHelper {
             val cursor = CalendarContract.Instances.query(context.contentResolver, projection, now - 3600_000L, end)
             cursor?.use {
                 while (it.moveToNext()) {
-                    val title = it.getString(0)?.trim().orEmpty().ifBlank { "(Không tiêu đề)" }
+                    val title = it.getString(0)?.trim().orEmpty().ifBlank { I18n.tr("(Không tiêu đề)") }
                     val begin = it.getLong(1)
                     val endMs = it.getLong(2)
                     val allDay = it.getInt(3) == 1
@@ -57,11 +57,11 @@ object CalendarEventsHelper {
         val diffDays = dayNumber(cal) - dayNumber(today)
         val dayPart = when (diffDays) {
             0 -> ""
-            1 -> "Mai "
+            1 -> I18n.tr("Mai ")
             else -> SimpleDateFormat("dd/MM ", Locale.getDefault()).format(cal.time)
         }
         return if (e.allDay) {
-            (if (diffDays == 0) "Hôm nay" else dayPart.trim()) + " · " + e.title
+            (if (diffDays == 0) I18n.tr("Hôm nay") else dayPart.trim()) + " · " + e.title
         } else {
             dayPart + SimpleDateFormat("HH:mm", Locale.getDefault()).format(cal.time) + " " + e.title
         }

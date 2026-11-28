@@ -1,6 +1,7 @@
 package com.foxwidget.app
 
 import android.Manifest
+import com.foxwidget.app.util.I18n
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.ActivityNotFoundException
@@ -42,6 +43,7 @@ import com.foxwidget.app.util.LiquidGlassRenderer
 import com.foxwidget.app.util.OemOptimizationHelper
 import com.foxwidget.app.util.VietLunarCalendar
 import com.foxwidget.app.widget.FoxWidgetProvider
+import com.foxwidget.app.widget.WidgetCommon
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -68,6 +70,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        I18n.applyTo(binding.root)
 
         applyEdgeToEdgeInsets()
 
@@ -165,7 +168,7 @@ class MainActivity : AppCompatActivity() {
     // ==================== TAB 1: BẢN QUYỀN & TỐI ƯU OEM ====================
     private fun setupPermissionsTab() {
         val oem = OemOptimizationHelper.detectOemProfile()
-        binding.tvOemDetectedBanner.text = "Thiết bị: ${oem.brandTitle} · ${oem.osEstimate}"
+        binding.tvOemDetectedBanner.text = I18n.tf("Thiết bị: {0} · {1}", oem.brandTitle, oem.osEstimate)
 
         binding.btnPermLocation.setOnClickListener {
             val perms = mutableListOf(
@@ -201,17 +204,17 @@ class MainActivity : AppCompatActivity() {
         binding.btnGuideOptimize.setOnClickListener {
             val profile = OemOptimizationHelper.detectOemProfile()
             AlertDialog.Builder(this)
-                .setTitle("Tối ưu cho ${profile.brandTitle}")
+                .setTitle(I18n.tf("Tối ưu cho {0}", profile.brandTitle))
                 .setMessage(
-                    "Hệ điều hành: ${profile.osEstimate}\n\n" +
-                    "1. Tự khởi động & Chạy ngầm:\n${profile.autostartGuide}\n\n" +
-                    "2. Chống đóng băng pin:\n${profile.batteryGuide}\n\n" +
-                    "3. Vị trí GPS:\nChọn 'Chỉ khi dùng ứng dụng'. Vị trí được làm mới mỗi lần bạn mở FoxWidget; khi chạy ngầm widget dùng vị trí đã lưu gần nhất, thời tiết vẫn cập nhật mỗi 15 phút."
+                    I18n.tf("Hệ điều hành: {0}\n\n", profile.osEstimate) +
+                    I18n.tf("1. Tự khởi động & Chạy ngầm:\n{0}\n\n", profile.autostartGuide) +
+                    I18n.tf("2. Chống đóng băng pin:\n{0}\n\n", profile.batteryGuide) +
+                    I18n.tr("3. Vị trí GPS:\nChọn 'Chỉ khi dùng ứng dụng'. Vị trí được làm mới mỗi lần bạn mở FoxWidget; khi chạy ngầm widget dùng vị trí đã lưu gần nhất, thời tiết vẫn cập nhật mỗi 15 phút.")
                 )
-                .setPositiveButton("Mở cài đặt hãng") { _, _ ->
+                .setPositiveButton(I18n.tr("Mở cài đặt hãng")) { _, _ ->
                     OemOptimizationHelper.openOemBackgroundSettings(this)
                 }
-                .setNegativeButton("Đóng", null)
+                .setNegativeButton(I18n.tr("Đóng"), null)
                 .show()
         }
     }
@@ -238,17 +241,17 @@ class MainActivity : AppCompatActivity() {
         if (isIgnoringBattery) enabledCount++
         if (hasNotif) enabledCount++
 
-        binding.tvPermCounter.text = "Đã bật $enabledCount/4 quyền"
+        binding.tvPermCounter.text = I18n.tf("Đã bật {0}/4 quyền", enabledCount)
         styleStatusButton(binding.btnPermLocation, hasLoc)
-        binding.btnPermBackground.text = "Mở"
+        binding.btnPermBackground.text = I18n.tr("Mở")
         styleStatusButton(binding.btnPermBattery, isIgnoringBattery)
         styleStatusButton(binding.btnPermNotification, hasNotif)
 
         val ready = enabledCount == 4
         binding.btnAllPermsReady.text = if (ready) {
-            "Tất cả quyền đã sẵn sàng"
+            I18n.tr("Tất cả quyền đã sẵn sàng")
         } else {
-            "Còn thiếu ${4 - enabledCount} quyền cần cấp"
+            I18n.tf("Còn thiếu {0} quyền cần cấp", 4 - enabledCount)
         }
         binding.btnAllPermsReady.setIconResource(if (ready) R.drawable.ic_check else R.drawable.ic_info)
         binding.btnAllPermsReady.backgroundTintList = ColorStateList.valueOf(
@@ -258,7 +261,7 @@ class MainActivity : AppCompatActivity() {
 
     /** Nút trạng thái bo tròn: đã bật = xanh lá nhạt, chưa bật = tím đặc. */
     private fun styleStatusButton(btn: MaterialButton, granted: Boolean) {
-        btn.text = if (granted) "Đã bật" else "Bật ngay"
+        btn.text = if (granted) I18n.tr("Đã bật") else I18n.tr("Bật ngay")
         if (granted) {
             btn.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.fox_success_bg))
             btn.setTextColor(ContextCompat.getColor(this, R.color.fox_success))
@@ -454,7 +457,7 @@ class MainActivity : AppCompatActivity() {
             binding.swShowBattery.isChecked = true
             binding.swShowDevice.isChecked = true
             applyAndBroadcast()
-            Toast.makeText(this, "Đã khôi phục mặc định Kính Lỏng Quang Học!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, I18n.tr("Đã khôi phục mặc định Kính Lỏng Quang Học!"), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -525,25 +528,25 @@ class MainActivity : AppCompatActivity() {
         )
 
         binding.tvLabelDateSize.text = if (prefs.dateFontScale == 100) {
-            "Cỡ chữ ngày dương & âm lịch: 100% (mặc định)"
+            I18n.tr("Cỡ chữ ngày dương & âm lịch: 100% (mặc định)")
         } else {
-            "Cỡ chữ ngày dương & âm lịch: ${prefs.dateFontScale}%"
+            I18n.tf("Cỡ chữ ngày dương & âm lịch: {0}%", prefs.dateFontScale)
         }
 
-        binding.tvLabelClockSize.text = "Cỡ đồng hồ: ${prefs.clockFontScale}%"
+        binding.tvLabelClockSize.text = I18n.tf("Cỡ đồng hồ: {0}%", prefs.clockFontScale)
         binding.tvLabelBorderWidth.text = if (prefs.borderWidthDp == 1) {
-            "Độ rộng viền: tự động"
+            I18n.tr("Độ rộng viền: tự động")
         } else {
-            "Độ rộng viền: ${prefs.borderWidthDp}dp"
+            I18n.tf("Độ rộng viền: {0}dp", prefs.borderWidthDp)
         }
         binding.tvLabelCornerRadius.text = if (prefs.cornerRadiusDp == 22) {
-            "Bo góc widget: mặc định (đồng bộ OS)"
+            I18n.tr("Bo góc widget: mặc định (đồng bộ OS)")
         } else {
-            "Bo góc widget: ${prefs.cornerRadiusDp}dp"
+            I18n.tf("Bo góc widget: {0}dp", prefs.cornerRadiusDp)
         }
-        binding.tvLabelGlassOpacity.text = "Độ đặc khối kính: ${prefs.glassOpacity}%"
-        binding.tvLabelGlassRefraction.text = "Tán sắc cầu vồng & khúc xạ viền: ${prefs.glassRefraction}%"
-        binding.tvLabelGlassGloss.text = "Độ bóng vòm giọt nước: ${prefs.glassGloss}%"
+        binding.tvLabelGlassOpacity.text = I18n.tf("Độ đặc khối kính: {0}%", prefs.glassOpacity)
+        binding.tvLabelGlassRefraction.text = I18n.tf("Tán sắc cầu vồng & khúc xạ viền: {0}%", prefs.glassRefraction)
+        binding.tvLabelGlassGloss.text = I18n.tf("Độ bóng vòm giọt nước: {0}%", prefs.glassGloss)
 
         // Render 1:1 Optical Liquid Glass Bitmap cho Live Preview
         val previewBitmap = LiquidGlassRenderer.renderWidgetSurface(this, prefs, 340, 175)
@@ -629,7 +632,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupOtherTabs() {
         binding.btnRefreshWeatherNow.setOnClickListener {
-            Toast.makeText(this, "Đang cập nhật thời tiết & vị trí...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, I18n.tr("Đang cập nhật thời tiết & vị trí..."), Toast.LENGTH_SHORT).show()
             lifecycleScope.launch {
                 DeviceTelemetryHelper.refreshWeatherAndLocation(this@MainActivity)
                 refreshWeatherPage()
@@ -645,7 +648,7 @@ class MainActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 DeviceTelemetryHelper.refreshWeatherAndLocation(this@MainActivity)
                 FoxWidgetProvider.updateAllWidgets(this@MainActivity)
-                Toast.makeText(this@MainActivity, "Đã đồng bộ lại toàn bộ Widget trên màn hình!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity, I18n.tr("Đã đồng bộ lại toàn bộ Widget trên màn hình!"), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -658,7 +661,7 @@ class MainActivity : AppCompatActivity() {
     private fun requestPinWidget() {
         val manager = AppWidgetManager.getInstance(this)
         if (!manager.isRequestPinAppWidgetSupported) {
-            showManualWidgetGuide("Launcher hiện tại không hỗ trợ thêm widget tự động.")
+            showManualWidgetGuide(I18n.tr("Launcher hiện tại không hỗ trợ thêm widget tự động."))
             return
         }
         val provider = ComponentName(this, FoxWidgetProvider::class.java)
@@ -676,11 +679,11 @@ class MainActivity : AppCompatActivity() {
         if (accepted) {
             Toast.makeText(
                 this,
-                "Hãy bấm \"Thêm\" trên màn hình chính. Không thấy hộp thoại thì dùng hướng dẫn thủ công bên dưới.",
+                I18n.tr("Hãy bấm \"Thêm\" trên màn hình chính. Không thấy hộp thoại thì dùng hướng dẫn thủ công bên dưới."),
                 Toast.LENGTH_LONG
             ).show()
         } else {
-            showManualWidgetGuide("Launcher đã từ chối yêu cầu thêm widget tự động.")
+            showManualWidgetGuide(I18n.tr("Launcher đã từ chối yêu cầu thêm widget tự động."))
         }
     }
 
@@ -688,32 +691,32 @@ class MainActivity : AppCompatActivity() {
         val mfg = (Build.MANUFACTURER ?: "").lowercase(Locale.ROOT)
         val brandTip = when {
             mfg.contains("xiaomi") || mfg.contains("redmi") || mfg.contains("poco") ->
-                "Xiaomi / Redmi / POCO: vào Cài đặt > Ứng dụng > FoxWidget > Quyền khác, bật " +
-                    "\"Tạo lối tắt trên Màn hình chính\" rồi bấm lại nút Thêm."
+                I18n.tr("Xiaomi / Redmi / POCO: vào Cài đặt > Ứng dụng > FoxWidget > Quyền khác, bật ") +
+                    I18n.tr("\"Tạo lối tắt trên Màn hình chính\" rồi bấm lại nút Thêm.")
             mfg.contains("oppo") || mfg.contains("realme") || mfg.contains("oneplus") ->
-                "OPPO / Realme / OnePlus: vào Thông tin ứng dụng FoxWidget > Quyền, bật quyền " +
-                    "\"Lối tắt trên màn hình chính\" (nếu có) rồi thử lại."
+                I18n.tr("OPPO / Realme / OnePlus: vào Thông tin ứng dụng FoxWidget > Quyền, bật quyền ") +
+                    I18n.tr("\"Lối tắt trên màn hình chính\" (nếu có) rồi thử lại.")
             mfg.contains("vivo") || mfg.contains("iqoo") ->
-                "vivo / iQOO: vào Thông tin ứng dụng FoxWidget > Quyền khác, bật " +
-                    "\"Tạo lối tắt trên màn hình chính\" rồi thử lại."
+                I18n.tr("vivo / iQOO: vào Thông tin ứng dụng FoxWidget > Quyền khác, bật ") +
+                    I18n.tr("\"Tạo lối tắt trên màn hình chính\" rồi thử lại.")
             mfg.contains("huawei") || mfg.contains("honor") ->
-                "Huawei / Honor: vào Thông tin ứng dụng FoxWidget > Quyền, bật quyền " +
-                    "\"Tạo lối tắt trên màn hình chính\" rồi thử lại."
+                I18n.tr("Huawei / Honor: vào Thông tin ứng dụng FoxWidget > Quyền, bật quyền ") +
+                    I18n.tr("\"Tạo lối tắt trên màn hình chính\" rồi thử lại.")
             else -> null
         }
         val message = buildString {
             if (reason != null) append(reason).append("\n\n")
-            append("Cách thêm thủ công (hoạt động trên mọi máy):\n")
-            append("1. Nhấn giữ vào chỗ trống trên màn hình chính.\n")
-            append("2. Chọn \"Tiện ích\" (Widgets).\n")
-            append("3. Tìm \"FoxWidget\", nhấn giữ rồi kéo ra màn hình.")
+            append(I18n.tr("Cách thêm thủ công (hoạt động trên mọi máy):\n"))
+            append(I18n.tr("1. Nhấn giữ vào chỗ trống trên màn hình chính.\n"))
+            append(I18n.tr("2. Chọn \"Tiện ích\" (Widgets).\n"))
+            append(I18n.tr("3. Tìm \"FoxWidget\", nhấn giữ rồi kéo ra màn hình."))
             if (brandTip != null) append("\n\n").append(brandTip)
         }
         AlertDialog.Builder(this)
-            .setTitle("Thêm FoxWidget ra màn hình chính")
+            .setTitle(I18n.tr("Thêm FoxWidget ra màn hình chính"))
             .setMessage(message)
-            .setPositiveButton("Đã hiểu", null)
-            .setNeutralButton("Mở quyền ứng dụng") { _, _ ->
+            .setPositiveButton(I18n.tr("Đã hiểu"), null)
+            .setNeutralButton(I18n.tr("Mở quyền ứng dụng")) { _, _ ->
                 try {
                     startActivity(
                         Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName"))
@@ -733,18 +736,18 @@ class MainActivity : AppCompatActivity() {
         )
         val canChiYear = VietLunarCalendar.getYearCanChi(lunar.year)
         val canChiDay = VietLunarCalendar.getDayCanChi(now)
-        binding.tvLunarBigSolar.text = VietLunarCalendar.formatSolarDateFull(now) + " năm ${now.get(Calendar.YEAR)}"
-        binding.tvLunarBigLunar.text = "${VietLunarCalendar.formatLunarDateFull(now)} · Năm $canChiYear"
-        binding.tvLunarCanChiDetail.text = "Ngày $canChiDay · Giờ Hoàng Đạo thuận lợi cho công việc & khởi tạo"
+        binding.tvLunarBigSolar.text = VietLunarCalendar.formatSolarDateFull(now) + I18n.tf(" năm {0}", now.get(Calendar.YEAR))
+        binding.tvLunarBigLunar.text = I18n.tf("{0} · Năm {1}", VietLunarCalendar.formatLunarDateFull(now), canChiYear)
+        binding.tvLunarCanChiDetail.text = I18n.tf("Ngày {0} · Giờ Hoàng Đạo thuận lợi cho công việc & khởi tạo", canChiDay)
     }
 
     private fun refreshWeatherPage() {
         val battery = DeviceTelemetryHelper.getBatteryStats(this)
-        binding.tvWeatherDetailLocation.text = "Khu vực: ${prefs.cachedLocationName}"
-        binding.tvWeatherDetailTemp.text = "Ngoài trời: ${prefs.cachedTempC}°C (${prefs.cachedWeatherDesc})"
+        binding.tvWeatherDetailLocation.text = I18n.tf("Khu vực: {0}", prefs.cachedLocationName)
+        binding.tvWeatherDetailTemp.text = I18n.tf("Ngoài trời: {0}°C ({1})", prefs.cachedTempC, I18n.tr(prefs.cachedWeatherDesc))
         binding.tvWeatherDetailBattery.text = String.format(
             Locale.US,
-            "Pin %d%% · Nhiệt độ pin %.1f°C",
+            I18n.tr("Pin %d%% · Nhiệt độ pin %.1f°C"),
             battery.levelPercent,
             battery.temperatureC
         )
@@ -760,7 +763,7 @@ class MainActivity : AppCompatActivity() {
                 if (!IslandOverlayManager.canDrawOverlays(this)) {
                     Toast.makeText(
                         this,
-                        "Hãy bật \"Hiển thị trên ứng dụng khác\" cho FoxWidget",
+                        I18n.tr("Hãy bật \"Hiển thị trên ứng dụng khác\" cho FoxWidget"),
                         Toast.LENGTH_LONG
                     ).show()
                     openOverlaySettings()
@@ -797,12 +800,12 @@ class MainActivity : AppCompatActivity() {
             seekBar = binding.seekIslandY,
             btnMinus = binding.btnIslandYMinus,
             btnPlus = binding.btnIslandYPlus,
-            minVal = 0,
-            maxVal = 120,
-            step = 2,
-            initial = prefs.islandOffsetYDp
+            minVal = -16,
+            maxVal = 60,
+            step = 1,
+            initial = prefs.islandDy
         ) { v ->
-            prefs.islandOffsetYDp = v
+            prefs.islandDy = v
             updateIslandLabels()
             IslandOverlayManager.sync(this)
         }
@@ -813,9 +816,9 @@ class MainActivity : AppCompatActivity() {
             minVal = -150,
             maxVal = 150,
             step = 5,
-            initial = prefs.islandOffsetXDp
+            initial = prefs.islandDx
         ) { v ->
-            prefs.islandOffsetXDp = v
+            prefs.islandDx = v
             updateIslandLabels()
             IslandOverlayManager.sync(this)
         }
@@ -823,7 +826,7 @@ class MainActivity : AppCompatActivity() {
             seekBar = binding.seekIslandScale,
             btnMinus = binding.btnIslandScaleMinus,
             btnPlus = binding.btnIslandScalePlus,
-            minVal = 70,
+            minVal = 50,
             maxVal = 130,
             step = 5,
             initial = prefs.islandScale
@@ -857,12 +860,12 @@ class MainActivity : AppCompatActivity() {
             seekBar = binding.seekIslandHeight,
             btnMinus = binding.btnIslandHeightMinus,
             btnPlus = binding.btnIslandHeightPlus,
-            minVal = 24,
-            maxVal = 56,
+            minVal = -12,
+            maxVal = 24,
             step = 1,
-            initial = prefs.islandHeightDp
+            initial = prefs.islandDh
         ) { v ->
-            prefs.islandHeightDp = v
+            prefs.islandDh = v
             updateIslandLabels()
             IslandOverlayManager.sync(this)
         }
@@ -892,7 +895,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.btnIslandModeSystem.setOnClickListener {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-                Toast.makeText(this, "Máy này chưa có màu hệ thống động, hãy chọn màu Tùy chỉnh", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, I18n.tr("Máy này chưa có màu hệ thống động, hãy chọn màu Tùy chỉnh"), Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
             prefs.islandColorMode = PrefsManager.ISLAND_COLOR_SYSTEM
@@ -917,7 +920,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.btnIslandPreview.setOnClickListener {
             if (!IslandOverlayManager.canDrawOverlays(this)) {
-                Toast.makeText(this, "Cần cấp quyền hiển thị trên ứng dụng khác trước", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, I18n.tr("Cần cấp quyền hiển thị trên ứng dụng khác trước"), Toast.LENGTH_LONG).show()
                 openOverlaySettings()
                 return@setOnClickListener
             }
@@ -931,16 +934,16 @@ class MainActivity : AppCompatActivity() {
 
         binding.btnIslandReset.setOnClickListener {
             prefs.resetIslandLayout()
-            binding.seekIslandY.progress = prefs.islandOffsetYDp
-            binding.seekIslandX.progress = prefs.islandOffsetXDp + 150
-            binding.seekIslandScale.progress = prefs.islandScale - 70
+            binding.seekIslandY.progress = prefs.islandDy + 16
+            binding.seekIslandX.progress = prefs.islandDx + 150
+            binding.seekIslandScale.progress = prefs.islandScale - 50
             binding.seekIslandWidth.progress = prefs.islandWidthDp - 60
-            binding.seekIslandHeight.progress = prefs.islandHeightDp - 24
+            binding.seekIslandHeight.progress = prefs.islandDh + 12
             binding.seekIslandGap.progress = prefs.islandGapDp - 20
             updateIslandLabels()
             refreshIslandPage()
             IslandOverlayManager.sync(this)
-            Toast.makeText(this, "Đã đặt lại vị trí & kích thước Dynamic Island", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, I18n.tr("Đã đặt lại vị trí & kích thước Dynamic Island"), Toast.LENGTH_SHORT).show()
         }
 
         binding.btnIslandOem.setOnClickListener {
@@ -961,7 +964,7 @@ class MainActivity : AppCompatActivity() {
                     Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName"))
                 )
             } catch (_: Exception) {
-                Toast.makeText(this, "Hãy vào Cài đặt > Ứng dụng > FoxWidget để cấp quyền", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, I18n.tr("Hãy vào Cài đặt > Ứng dụng > FoxWidget để cấp quyền"), Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -981,19 +984,19 @@ class MainActivity : AppCompatActivity() {
         val showManual = !prefs.islandAutoCutout || detected == false
         binding.llIslandManual.visibility = if (showManual) View.VISIBLE else View.GONE
         binding.tvIslandCutoutHint.text = when {
-            !prefs.islandAutoCutout -> "Đang căn thủ công: tự chỉnh vị trí, chiều cao và khoảng trống camera bên dưới."
-            detected == true -> "Đã nhận diện camera của máy: viên thuốc tự căn khít vị trí camera, chừa trống phần giữa."
-            detected == false -> "Máy không báo vị trí camera, đang dùng thông số thủ công bên dưới."
-            else -> "Sẽ tự lấy vị trí camera của máy khi Dynamic Island hiển thị."
+            !prefs.islandAutoCutout -> I18n.tr("Đang căn thủ công: chỉnh khoảng trống camera bên dưới. Vị trí, chiều cao, kích thước vẫn chỉnh được ở trên.")
+            detected == true -> I18n.tr("Đã nhận diện camera của máy: viên thuốc tự căn khít vị trí camera, chừa trống phần giữa.")
+            detected == false -> I18n.tr("Máy không báo vị trí camera, hãy chỉnh khoảng trống camera bên dưới.")
+            else -> I18n.tr("Sẽ tự lấy vị trí camera của máy khi Dynamic Island hiển thị.")
         }
         setSegment(binding.btnIslandIconLogo, prefs.islandLeftIconMode == 0)
         setSegment(binding.btnIslandIconInfo, prefs.islandLeftIconMode == 1)
 
         val granted = IslandOverlayManager.canDrawOverlays(this)
         binding.tvIslandPermStatus.text = if (granted) {
-            "Đã cấp quyền hiển thị trên ứng dụng khác"
+            I18n.tr("Đã cấp quyền hiển thị trên ứng dụng khác")
         } else {
-            "Chưa cấp quyền hiển thị trên ứng dụng khác"
+            I18n.tr("Chưa cấp quyền hiển thị trên ứng dụng khác")
         }
         styleStatusButton(binding.btnIslandPermission, granted)
         updateIslandLabels()
@@ -1023,9 +1026,9 @@ class MainActivity : AppCompatActivity() {
         setSegment(binding.btnIslandStyleGlass, prefs.islandStyle == PrefsManager.ISLAND_STYLE_GLASS)
 
         binding.tvIslandColorHint.text = when {
-            !systemSupported -> "Máy này (Android dưới 12) chưa có màu hệ thống động. Hãy chọn màu ở bên dưới."
-            systemMode -> "Đang dùng màu chủ đề của máy (Material You / màu hãng), tự đổi theo hình nền."
-            else -> "Đang dùng màu tùy chỉnh. Chọn \"Màu hệ thống\" để island tự theo màu của máy."
+            !systemSupported -> I18n.tr("Máy này (Android dưới 12) chưa có màu hệ thống động. Hãy chọn màu ở bên dưới.")
+            systemMode -> I18n.tr("Đang dùng màu chủ đề của máy (Material You / màu hãng), tự đổi theo hình nền.")
+            else -> I18n.tr("Đang dùng màu tùy chỉnh. Chọn \"Màu hệ thống\" để island tự theo màu của máy.")
         }
         binding.llIslandCustomColors.visibility = if (systemMode) View.GONE else View.VISIBLE
         if (!systemMode) buildIslandSwatches()
@@ -1061,7 +1064,7 @@ class MainActivity : AppCompatActivity() {
                         if (selected) setStroke((3 * d).toInt(), primary)
                         else setStroke((1 * d).toInt().coerceAtLeast(1), 0x33000000)
                     }
-                    contentDescription = "Màu island"
+                    contentDescription = I18n.tr("Màu island")
                     setOnClickListener {
                         prefs.islandColorMode = PrefsManager.ISLAND_COLOR_CUSTOM
                         prefs.islandCustomColor = color
@@ -1076,29 +1079,39 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun signedDp(v: Int): String = if (v > 0) "+$v" else "$v"
+
     private fun updateIslandLabels() {
-        binding.tvLabelIslandY.text = "Cách mép trên: ${prefs.islandOffsetYDp}dp"
-        val x = prefs.islandOffsetXDp
+        val y = prefs.islandDy
+        binding.tvLabelIslandY.text =
+            if (y == 0) I18n.tr("Lên/xuống: mặc định") else I18n.tf("Lên/xuống: {0}dp", signedDp(y))
+        val x = prefs.islandDx
         binding.tvLabelIslandX.text = when {
-            x == 0 -> "Lệch ngang: giữa màn hình"
-            x < 0 -> "Lệch ngang: ${-x}dp sang trái"
-            else -> "Lệch ngang: ${x}dp sang phải"
+            x == 0 -> I18n.tr("Trái/phải: căn giữa")
+            x < 0 -> I18n.tf("Trái/phải: {0}dp sang trái", -x)
+            else -> I18n.tf("Trái/phải: {0}dp sang phải", x)
         }
-        binding.tvLabelIslandScale.text = "Kích thước chữ & icon: ${prefs.islandScale}%"
-        binding.tvLabelIslandWidth.text = "Độ dài viên thuốc: ${prefs.islandWidthDp}dp"
-        binding.tvLabelIslandHeight.text = "Chiều cao: ${prefs.islandHeightDp}dp"
-        binding.tvLabelIslandGap.text = "Khoảng trống giữa (camera): ${prefs.islandGapDp}dp"
+        val dh = prefs.islandDh
+        binding.tvLabelIslandHeight.text =
+            if (dh == 0) I18n.tr("Chiều cao: mặc định") else I18n.tf("Chiều cao: {0}dp", signedDp(dh))
+        binding.tvLabelIslandScale.text = I18n.tf("Kích thước viên thuốc: {0}%", prefs.islandScale)
+        binding.tvLabelIslandWidth.text = I18n.tf("Độ dài viên thuốc: {0}dp", prefs.islandWidthDp)
+        binding.tvLabelIslandGap.text = I18n.tf("Khoảng trống giữa (camera): {0}dp", prefs.islandGapDp)
     }
 
     // ==================== TAB 6: THÔNG TIN ====================
     private fun setupInfoTab() {
         val versionName = try {
-            packageManager.getPackageInfo(packageName, 0).versionName ?: "1.4"
+            packageManager.getPackageInfo(packageName, 0).versionName ?: "1.6"
         } catch (_: Exception) {
-            "1.4"
+            "1.6"
         }
         binding.tvHeaderVersion.text = "v$versionName"
-        binding.tvInfoAppVersion.text = "Phiên bản $versionName"
+        binding.tvInfoAppVersion.text = I18n.tf("Phiên bản {0}", versionName)
+
+        binding.btnLangVi.setOnClickListener { changeLanguage(I18n.VI) }
+        binding.btnLangEn.setOnClickListener { changeLanguage(I18n.EN) }
+        refreshLanguageUi()
 
         binding.btnOpenAdvanced.setOnClickListener {
             startActivity(Intent(this, AdvancedSettingsActivity::class.java))
@@ -1108,12 +1121,12 @@ class MainActivity : AppCompatActivity() {
         binding.btnContactEmail.setOnClickListener {
             val intent = Intent(Intent.ACTION_SENDTO).apply {
                 data = Uri.parse("mailto:$EMAIL_CONTACT")
-                putExtra(Intent.EXTRA_SUBJECT, "Góp ý FoxWidget")
+                putExtra(Intent.EXTRA_SUBJECT, I18n.tr("Góp ý FoxWidget"))
             }
             try {
                 startActivity(intent)
             } catch (_: ActivityNotFoundException) {
-                Toast.makeText(this, "Chưa có ứng dụng email. Gửi tới: $EMAIL_CONTACT", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, I18n.tf("Chưa có ứng dụng email. Gửi tới: {0}", EMAIL_CONTACT), Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -1122,18 +1135,35 @@ class MainActivity : AppCompatActivity() {
         try {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
         } catch (_: ActivityNotFoundException) {
-            Toast.makeText(this, "Không mở được liên kết: $url", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, I18n.tf("Không mở được liên kết: {0}", url), Toast.LENGTH_LONG).show()
         }
     }
 
+    /** Đổi ngôn ngữ: lưu lựa chọn, cập nhật widget/island/thông báo rồi dựng lại giao diện. */
+    private fun changeLanguage(lang: String) {
+        if (I18n.lang == lang) return
+        I18n.setLanguage(this, lang)
+        FoxWidgetProvider.updateAllWidgets(this)
+        WidgetCommon.updateAll(this)
+        IslandOverlayManager.sync(this)
+        FoxMonitorService.start(this)
+        recreate()
+    }
+
+    private fun refreshLanguageUi() {
+        setSegment(binding.btnLangVi, I18n.lang == I18n.VI)
+        setSegment(binding.btnLangEn, I18n.lang == I18n.EN)
+    }
+
     private fun refreshInfoPage() {
+        refreshLanguageUi()
         val oem = OemOptimizationHelper.detectOemProfile()
         val os = DeviceInfoHelper.getOsInfo()
         binding.tvInfoDeviceName.text = DeviceInfoHelper.getNameWithCode(this)
         binding.tvInfoOs.text = "${oem.brandTitle} · ${os.skinDisplay}"
         binding.tvInfoAndroid.text = buildString {
             append("Android ${os.androidVersion} (API ${os.apiLevel})")
-            if (os.securityPatch.isNotBlank()) append(" · Bản vá ${os.securityPatch}")
+            if (os.securityPatch.isNotBlank()) append(I18n.tf(" · Bản vá {0}", os.securityPatch))
         }
     }
 

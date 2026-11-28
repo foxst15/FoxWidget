@@ -168,6 +168,30 @@ object IslandOverlayManager {
     private var needsSecondPass = false
     private var appCtx: Context? = null
 
+    // Bộ đệm: tránh truy vấn Lịch / parse JSON thời tiết trên main thread mỗi lần kéo thanh trượt hoặc mỗi phút
+    private var eventCacheAt = 0L
+    private var eventCache = ""
+    private var snapCacheAt = 0L
+    private var snapCache: WeatherHelper.Snapshot? = null
+
+    private fun cachedEventLine(ctx: Context): String {
+        val now = System.currentTimeMillis()
+        if (now - eventCacheAt > 60_000L) {
+            eventCache = CalendarEventsHelper.nextLine(ctx)
+            eventCacheAt = now
+        }
+        return eventCache
+    }
+
+    private fun cachedWeather(ctx: Context): WeatherHelper.Snapshot? {
+        val now = System.currentTimeMillis()
+        if (now - snapCacheAt > 20_000L) {
+            snapCache = WeatherHelper.load(ctx)
+            snapCacheAt = now
+        }
+        return snapCache
+    }
+
     private val collapseRunnable = Runnable { setExpanded(false, animate = true) }
 
     private val cycleRunnable = object : Runnable {
@@ -412,28 +436,38 @@ object IslandOverlayManager {
 
     private fun computeGeometry(ctx: Context, prefs: PrefsManager, h: Holder): Geom {
         val density = ctx.resources.displayMetrics.density
-        val unit = density * prefs.islandScale / 100f
+        val scale = prefs.islandScale / 100f
+        val unit = density * scale
         val screenW = ctx.resources.displayMetrics.widthPixels
 
         val cut = findCutout(ctx, h.root)
         cutoutDetected = cut != null
-        val pad = 5f * density
+        val useCut = prefs.islandAutoCutout && cut != null
 
-        val cH: Int
-        val cY: Int
-        val cX: Int
+        // Kích thước gốc (như viên thuốc của hệ thống: cao ~35dp, tâm trùng tâm camera)
+        val baseH: Float
+        val baseY: Float
+        val baseX: Float
         val gap: Float
-        if (prefs.islandAutoCutout && cut != null) {
-            cH = max(cut.bottom - cut.top + 2 * pad, 28f * density).roundToInt()
-            cY = max(0f, cut.top - pad).roundToInt()
-            cX = (cut.centerX - screenW / 2f).roundToInt()
-            gap = cut.width + 2f * pad * 1.2f
+        if (useCut && cut != null) {
+            // Vùng "cutout" mà một số hãng báo thường cao hơn lỗ camera thật -> giới hạn để viên thuốc không phình to
+            baseH = (cut.bottom - cut.top + 4f * density).coerceIn(30f * density, 38f * density)
+            val centerY = (cut.top + cut.bottom) / 2f
+            baseY = max(0f, centerY - baseH / 2f)
+            baseX = cut.centerX - screenW / 2f
+            gap = cut.width + 12f * density
         } else {
-            cH = (prefs.islandHeightDp * unit).roundToInt()
-            cY = (prefs.islandOffsetYDp * density).roundToInt()
-            cX = (prefs.islandOffsetXDp * density).roundToInt()
+            baseH = 34f * density
+            baseY = 6f * density
+            baseX = 0f
             gap = prefs.islandGapDp * unit
         }
+
+        // Thanh "Kích thước" co giãn cả chiều cao; "Chiều cao", "Lên/xuống", "Trái/phải" tinh chỉnh thêm, luôn có tác dụng
+        val cHf = max(22f * density, baseH * scale + prefs.islandDh * density)
+        val cH = cHf.roundToInt()
+        val cY = max(0f, baseY + (baseH - cHf) / 2f + prefs.islandDy * density).roundToInt()
+        val cX = (baseX + prefs.islandDx * density).roundToInt()
 
         val iconSize = (cH * 0.58f).roundToInt()
         val leftPad = (cH * 0.30f).roundToInt()
@@ -606,20 +640,20 @@ object IslandOverlayManager {
             val y = now.get(Calendar.YEAR)
             val lunar = VietLunarCalendar.convertSolar2Lunar(d, m, y)
             val holiday = if (prefs.islandShowHoliday) VietHolidays.todayLine(now) else ""
-            val event = if (prefs.islandShowEvent) CalendarEventsHelper.nextLine(ctx) else ""
+            val event = if (prefs.islandShowEvent) cachedEventLine(ctx) else ""
             h.rowCal.icon.setImageResource(R.drawable.ic_calendar)
             h.rowCal.icon.setColorFilter(tintFor(COLOR_CAL))
             h.rowCal.value.text = buildString {
                 append(VietLunarCalendar.formatSolarDateFull(now)).append("\n")
                 append(VietLunarCalendar.formatLunarDateFull(now))
-                append("\nNgày ").append(VietLunarCalendar.getDayCanChi(now))
-                append(" · Năm ").append(VietLunarCalendar.getYearCanChi(lunar.year))
+                append(I18n.tr("\nNgày ")).append(VietLunarCalendar.getDayCanChi(now))
+                append(I18n.tr(" · Năm ")).append(VietLunarCalendar.getYearCanChi(lunar.year))
                 if (holiday.isNotEmpty()) append("\n🎉 ").append(holiday)
                 if (event.isNotEmpty()) append("\n🔔 ").append(event)
             }
             items += Item(
                 R.drawable.ic_calendar, COLOR_CAL,
-                String.format(Locale.US, "%02d/%02d · ÂL %d/%d", d, m, lunar.day, lunar.month),
+                String.format(Locale.US, I18n.tr("%02d/%02d · ÂL %d/%d"), d, m, lunar.day, lunar.month),
                 String.format(Locale.US, "%02d/%02d", d, m)
             )
             if (holiday.isNotEmpty()) {
@@ -633,18 +667,18 @@ object IslandOverlayManager {
         // --- Thời tiết (nhiều nguồn: Open-Meteo + MET Norway dự phòng)
         h.rowWeather.root.visibility = if (prefs.islandShowWeather) View.VISIBLE else View.GONE
         if (prefs.islandShowWeather) {
-            val snap = WeatherHelper.load(ctx)
+            val snap = cachedWeather(ctx)
             val unit = prefs.tempUnit
             val temp = if (snap != null) {
                 WeatherHelper.formatTemp(snap.tempC, unit) + WeatherHelper.unitSuffix(unit)
             } else "${prefs.cachedTempC}°C"
-            val desc = if (snap != null) WeatherHelper.describe(snap.code, snap.isDay) else prefs.cachedWeatherDesc
+            val desc = if (snap != null) WeatherHelper.describe(snap.code, snap.isDay) else I18n.tr(prefs.cachedWeatherDesc)
             val detail = if (snap != null && prefs.islandWeatherDetail) {
                 listOfNotNull(
-                    "Cảm giác ${WeatherHelper.formatTemp(snap.feelsC, unit)}",
-                    if (snap.humidity >= 0) "Ẩm ${snap.humidity}%" else null,
-                    "Gió ${snap.windKmh.roundToInt()} km/h",
-                    if (snap.rainProb >= 0) "Mưa ${snap.rainProb}%" else null,
+                    I18n.tf("Cảm giác {0}", WeatherHelper.formatTemp(snap.feelsC, unit)),
+                    if (snap.humidity >= 0) I18n.tf("Ẩm {0}%", snap.humidity) else null,
+                    I18n.tf("Gió {0} km/h", snap.windKmh.roundToInt()),
+                    if (snap.rainProb >= 0) I18n.tf("Mưa {0}%", snap.rainProb) else null,
                     if (snap.aqi >= 0) "AQI ${snap.aqi} (${WeatherHelper.aqiLabel(snap.aqi)})" else null
                 ).joinToString(" · ")
             } else ""
@@ -672,12 +706,12 @@ object IslandOverlayManager {
             val temp = String.format(Locale.US, "%.1f°C", b.temperatureC)
             h.rowBat.icon.setImageResource(icon)
             h.rowBat.icon.setColorFilter(tintFor(tint))
-            h.rowBat.value.text = "${b.levelPercent}% · $temp" + if (b.isCharging) " · đang sạc" else ""
+            h.rowBat.value.text = "${b.levelPercent}% · $temp" + if (b.isCharging) I18n.tr(" · đang sạc") else ""
             items += Item(icon, tint, "${b.levelPercent}% · $temp", "${b.levelPercent}%")
         }
 
         if (items.isEmpty()) {
-            items += Item(R.drawable.ic_info, Color.WHITE, "Chưa chọn thông tin", "FoxWidget")
+            items += Item(R.drawable.ic_info, Color.WHITE, I18n.tr("Chưa chọn thông tin"), "FoxWidget")
         }
         currentItems = items
         if (cycleIndex >= items.size) cycleIndex = 0

@@ -70,7 +70,7 @@ object VietHolidays {
 
     /** Một dòng gọn cho hôm nay, ví dụ "Rằm · Lễ Vu Lan". Rỗng nếu không có gì đặc biệt. */
     fun todayLine(cal: Calendar = Calendar.getInstance()): String =
-        holidaysOn(cal).joinToString(" · ") { it.name }
+        holidaysOn(cal).joinToString(" · ") { I18n.tr(it.name) }
 
     /** Ngày lễ lớn tiếp theo (không tính Rằm/Mùng 1) trong 120 ngày tới: "Giỗ Tổ Hùng Vương · còn 23 ngày". */
     fun nextMajor(cal: Calendar = Calendar.getInstance()): String {
@@ -79,7 +79,7 @@ object VietHolidays {
             c.add(Calendar.DAY_OF_MONTH, 1)
             val h = holidaysOn(c).firstOrNull { it.isDayOff || it.name != "Rằm" && it.name != "Mùng 1 âm lịch" }
             if (h != null) {
-                return if (i == 1) "${h.name} · ngày mai" else "${h.name} · còn $i ngày"
+                return if (i == 1) I18n.tf("{0} · ngày mai", I18n.tr(h.name)) else I18n.tf("{0} · còn {1} ngày", I18n.tr(h.name), i)
             }
         }
         return ""
@@ -97,6 +97,6 @@ object VietHolidays {
         val l = VietLunarCalendar.convertSolar2Lunar(
             cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.YEAR)
         )
-        return "Ngày ${VietLunarCalendar.getDayCanChi(cal)} · Tháng ${monthCanChi(l.year, l.month)} · Năm ${VietLunarCalendar.getYearCanChi(l.year)}"
+        return I18n.tf("Ngày {0} · Tháng {1} · Năm {2}", VietLunarCalendar.getDayCanChi(cal), monthCanChi(l.year, l.month), VietLunarCalendar.getYearCanChi(l.year))
     }
 }

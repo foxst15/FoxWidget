@@ -1,6 +1,7 @@
 package com.foxwidget.app
 
 import android.Manifest
+import com.foxwidget.app.util.I18n
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
@@ -57,7 +58,7 @@ class AdvancedSettingsActivity : AppCompatActivity() {
             prefs.islandShowEvent = false
         }
         if (!granted) {
-            Toast.makeText(this, "Cần quyền Lịch để hiện sự kiện sắp tới", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, I18n.tr("Cần quyền Lịch để hiện sự kiện sắp tới"), Toast.LENGTH_LONG).show()
         }
         changed()
     }
@@ -81,8 +82,8 @@ class AdvancedSettingsActivity : AppCompatActivity() {
             insets
         }
 
-        root.addView(title("Tùy chỉnh nâng cao", 22f))
-        root.addView(note("Thay đổi được áp dụng ngay cho widget và Dynamic Island."))
+        root.addView(title(I18n.tr("Tùy chỉnh nâng cao"), 22f))
+        root.addView(note(I18n.tr("Thay đổi được áp dụng ngay cho widget và Dynamic Island.")))
 
         buildIslandSection(root)
         buildWeatherSection(root)
@@ -93,16 +94,16 @@ class AdvancedSettingsActivity : AppCompatActivity() {
     // ------------------------------------------------------------------ Dynamic Island
 
     private fun buildIslandSection(root: LinearLayout) {
-        val card = card(root, "DYNAMIC ISLAND · KIỂU THEO HÃNG")
+        val card = card(root, I18n.tr("DYNAMIC ISLAND · KIỂU THEO HÃNG"))
         val detected = DeviceInfoHelper.getBrandTitle()
         val options = listOf(
-            PrefsManager.ISLAND_PRESET_AUTO to "Tự động theo máy ($detected)",
-            PrefsManager.ISLAND_PRESET_CLASSIC to "Dynamic Island · iOS (nảy lò xo, nền đen tuyền)",
-            PrefsManager.ISLAND_PRESET_HYPER to "Hyper Island · Xiaomi HyperOS (mượt, vầng sáng nhẹ)",
-            PrefsManager.ISLAND_PRESET_FLUID to "Fluid Cloud · OPPO / OnePlus / realme (kính mờ, chảy)",
-            PrefsManager.ISLAND_PRESET_ATOMIC to "Atomic Island · vivo / iQOO (nhanh, gọn)",
-            PrefsManager.ISLAND_PRESET_CAPSULE to "Magic Capsule · HONOR (viên thuốc mềm)",
-            PrefsManager.ISLAND_PRESET_NOWBAR to "Now Bar · Samsung One UI (thẻ rộng)"
+            PrefsManager.ISLAND_PRESET_AUTO to I18n.tf("Tự động theo máy ({0})", detected),
+            PrefsManager.ISLAND_PRESET_CLASSIC to I18n.tr("Dynamic Island · iOS (nảy lò xo, nền đen tuyền)"),
+            PrefsManager.ISLAND_PRESET_HYPER to I18n.tr("Hyper Island · Xiaomi HyperOS (mượt, vầng sáng nhẹ)"),
+            PrefsManager.ISLAND_PRESET_FLUID to I18n.tr("Fluid Cloud · OPPO / OnePlus / realme (kính mờ, chảy)"),
+            PrefsManager.ISLAND_PRESET_ATOMIC to I18n.tr("Atomic Island · vivo / iQOO (nhanh, gọn)"),
+            PrefsManager.ISLAND_PRESET_CAPSULE to I18n.tr("Magic Capsule · HONOR (viên thuốc mềm)"),
+            PrefsManager.ISLAND_PRESET_NOWBAR to I18n.tr("Now Bar · Samsung One UI (thẻ rộng)")
         )
         val group = RadioGroup(this).apply { orientation = RadioGroup.VERTICAL }
         val ids = HashMap<Int, Int>()
@@ -126,18 +127,18 @@ class AdvancedSettingsActivity : AppCompatActivity() {
         }
         card.addView(group)
 
-        card.addView(switchRow("Hiện ngày lễ trên island", prefs.islandShowHoliday) { prefs.islandShowHoliday = it; changed() })
-        card.addView(switchRow("Hiện sự kiện sắp tới trên island", prefs.islandShowEvent) {
+        card.addView(switchRow(I18n.tr("Hiện ngày lễ trên island"), prefs.islandShowHoliday) { prefs.islandShowHoliday = it; changed() })
+        card.addView(switchRow(I18n.tr("Hiện sự kiện sắp tới trên island"), prefs.islandShowEvent) {
             prefs.islandShowEvent = it
             if (it && !CalendarEventsHelper.hasPermission(this)) askCalendarPermission(forWidget = false)
             changed()
         })
-        card.addView(switchRow("Hiện chi tiết thời tiết (cảm giác, ẩm, gió, AQI)", prefs.islandWeatherDetail) {
+        card.addView(switchRow(I18n.tr("Hiện chi tiết thời tiết (cảm giác, ẩm, gió, AQI)"), prefs.islandWeatherDetail) {
             prefs.islandWeatherDetail = it; changed()
         })
-        card.addView(button("Xem thử island") {
+        card.addView(button(I18n.tr("Xem thử island")) {
             if (!prefs.islandEnabled || !IslandOverlayManager.canDrawOverlays(this)) {
-                Toast.makeText(this, "Hãy bật Dynamic Island và cấp quyền hiển thị ở màn hình chính trước.", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, I18n.tr("Hãy bật Dynamic Island và cấp quyền hiển thị ở màn hình chính trước."), Toast.LENGTH_LONG).show()
             } else IslandOverlayManager.preview(this)
         })
     }
@@ -145,9 +146,9 @@ class AdvancedSettingsActivity : AppCompatActivity() {
     // ------------------------------------------------------------------ Thời tiết
 
     private fun buildWeatherSection(root: LinearLayout) {
-        val card = card(root, "THỜI TIẾT & VỊ TRÍ")
+        val card = card(root, I18n.tr("THỜI TIẾT & VỊ TRÍ"))
 
-        card.addView(label("Đơn vị nhiệt độ"))
+        card.addView(label(I18n.tr("Đơn vị nhiệt độ")))
         val unit = RadioGroup(this).apply { orientation = RadioGroup.HORIZONTAL }
         val rc = RadioButton(this).apply { id = View.generateViewId(); text = "°C" }
         val rf = RadioButton(this).apply { id = View.generateViewId(); text = "°F" }
@@ -159,11 +160,11 @@ class AdvancedSettingsActivity : AppCompatActivity() {
         }
         card.addView(unit)
 
-        card.addView(label("Số ngày dự báo trên widget thời tiết"))
+        card.addView(label(I18n.tr("Số ngày dự báo trên widget thời tiết")))
         val days = RadioGroup(this).apply { orientation = RadioGroup.HORIZONTAL }
         val dayIds = HashMap<Int, Int>()
         for (n in listOf(3, 5, 7)) {
-            val rb = RadioButton(this).apply { id = View.generateViewId(); text = "$n ngày" }
+            val rb = RadioButton(this).apply { id = View.generateViewId(); text = I18n.tf("{0} ngày", n) }
             dayIds[rb.id] = n
             days.addView(rb)
             if (prefs.forecastDays == n) rb.isChecked = true
@@ -174,29 +175,29 @@ class AdvancedSettingsActivity : AppCompatActivity() {
         card.addView(days)
 
         locationLabel = note("")
-        card.addView(label("Vị trí lấy thời tiết"))
+        card.addView(label(I18n.tr("Vị trí lấy thời tiết")))
         card.addView(locationLabel)
         updateLocationLabel()
-        card.addView(button("Chọn thành phố thủ công") { showCitySearch() })
-        card.addView(button("Dùng vị trí tự động (GPS / mạng)") {
+        card.addView(button(I18n.tr("Chọn thành phố thủ công")) { showCitySearch() })
+        card.addView(button(I18n.tr("Dùng vị trí tự động (GPS / mạng)")) {
             prefs.manualLocationEnabled = false
             updateLocationLabel()
             refreshWeather()
         })
-        card.addView(button("Làm mới thời tiết ngay") { refreshWeather() })
-        card.addView(note("Nguồn: Open-Meteo (chính), MET Norway (dự phòng), chất lượng không khí Open-Meteo."))
+        card.addView(button(I18n.tr("Làm mới thời tiết ngay")) { refreshWeather() })
+        card.addView(note(I18n.tr("Nguồn: Open-Meteo (chính), MET Norway (dự phòng), chất lượng không khí Open-Meteo.")))
     }
 
     private fun updateLocationLabel() {
         locationLabel.text = if (prefs.manualLocationEnabled) {
-            "Thủ công: ${prefs.manualName.ifBlank { "(chưa đặt tên)" }}"
+            I18n.tf("Thủ công: {0}", prefs.manualName.ifBlank { I18n.tr("(chưa đặt tên)") })
         } else {
-            "Tự động: ${prefs.cachedLocationName}"
+            I18n.tf("Tự động: {0}", prefs.cachedLocationName)
         }
     }
 
     private fun refreshWeather() {
-        Toast.makeText(this, "Đang tải thời tiết…", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, I18n.tr("Đang tải thời tiết…"), Toast.LENGTH_SHORT).show()
         lifecycleScope.launch {
             WeatherHelper.refresh(this@AdvancedSettingsActivity)
             updateLocationLabel()
@@ -204,7 +205,7 @@ class AdvancedSettingsActivity : AppCompatActivity() {
             val snap = WeatherHelper.load(this@AdvancedSettingsActivity)
             Toast.makeText(
                 this@AdvancedSettingsActivity,
-                if (snap != null) "Đã cập nhật (${snap.source})" else "Không tải được, kiểm tra mạng",
+                if (snap != null) I18n.tf("Đã cập nhật ({0})", snap.source) else I18n.tr("Không tải được, kiểm tra mạng"),
                 Toast.LENGTH_SHORT
             ).show()
         }
@@ -212,25 +213,25 @@ class AdvancedSettingsActivity : AppCompatActivity() {
 
     private fun showCitySearch() {
         val input = EditText(this).apply {
-            hint = "Ví dụ: Đà Nẵng, Hà Nội, Tokyo"
+            hint = I18n.tr("Ví dụ: Đà Nẵng, Hà Nội, Tokyo")
             inputType = InputType.TYPE_CLASS_TEXT
             setPadding(px(20), px(16), px(20), px(16))
         }
         AlertDialog.Builder(this)
-            .setTitle("Tìm thành phố")
+            .setTitle(I18n.tr("Tìm thành phố"))
             .setView(input)
-            .setPositiveButton("Tìm") { _, _ ->
+            .setPositiveButton(I18n.tr("Tìm")) { _, _ ->
                 val q = input.text.toString().trim()
                 if (q.isEmpty()) return@setPositiveButton
                 lifecycleScope.launch {
                     val results = WeatherHelper.searchPlaces(q)
                     if (results.isEmpty()) {
-                        Toast.makeText(this@AdvancedSettingsActivity, "Không tìm thấy \"$q\"", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@AdvancedSettingsActivity, I18n.tf("Không tìm thấy \"{0}\"", q), Toast.LENGTH_SHORT).show()
                         return@launch
                     }
                     val labels = results.map { if (it.detail.isBlank()) it.name else "${it.name} · ${it.detail}" }.toTypedArray()
                     AlertDialog.Builder(this@AdvancedSettingsActivity)
-                        .setTitle("Chọn địa điểm")
+                        .setTitle(I18n.tr("Chọn địa điểm"))
                         .setItems(labels) { _, which ->
                             val r = results[which]
                             prefs.manualLocationEnabled = true
@@ -241,22 +242,22 @@ class AdvancedSettingsActivity : AppCompatActivity() {
                             updateLocationLabel()
                             refreshWeather()
                         }
-                        .setNegativeButton("Hủy", null)
+                        .setNegativeButton(I18n.tr("Hủy"), null)
                         .show()
                 }
             }
-            .setNegativeButton("Hủy", null)
+            .setNegativeButton(I18n.tr("Hủy"), null)
             .show()
     }
 
     // ------------------------------------------------------------------ Widget
 
     private fun buildWidgetSection(root: LinearLayout) {
-        val card = card(root, "WIDGET · LỰA CHỌN HIỂN THỊ")
-        card.addView(switchRow("Đồng hồ 24 giờ (tắt = 12 giờ AM/PM)", prefs.clock24h) { prefs.clock24h = it; changed() })
-        card.addView(switchRow("Hiện Can Chi (ngày, năm)", prefs.showCanChi) { prefs.showCanChi = it; changed() })
-        card.addView(switchRow("Hiện ngày lễ Việt Nam", prefs.showHolidayLine) { prefs.showHolidayLine = it; changed() })
-        val eventSwitch = switchRow("Hiện sự kiện sắp tới từ Lịch của máy", prefs.showNextEvent && CalendarEventsHelper.hasPermission(this)) {
+        val card = card(root, I18n.tr("WIDGET · LỰA CHỌN HIỂN THỊ"))
+        card.addView(switchRow(I18n.tr("Đồng hồ 24 giờ (tắt = 12 giờ AM/PM)"), prefs.clock24h) { prefs.clock24h = it; changed() })
+        card.addView(switchRow(I18n.tr("Hiện Can Chi (ngày, năm)"), prefs.showCanChi) { prefs.showCanChi = it; changed() })
+        card.addView(switchRow(I18n.tr("Hiện ngày lễ Việt Nam"), prefs.showHolidayLine) { prefs.showHolidayLine = it; changed() })
+        val eventSwitch = switchRow(I18n.tr("Hiện sự kiện sắp tới từ Lịch của máy"), prefs.showNextEvent && CalendarEventsHelper.hasPermission(this)) {
             if (it) {
                 if (CalendarEventsHelper.hasPermission(this)) {
                     prefs.showNextEvent = true; changed()
@@ -267,13 +268,13 @@ class AdvancedSettingsActivity : AppCompatActivity() {
         }
         pendingCalendarSwitch = eventSwitch.getChildAt(1) as? SwitchCompat
         card.addView(eventSwitch)
-        card.addView(switchRow("Thời tiết: hiện cảm giác, độ ẩm, gió, UV, AQI", prefs.showWeatherDetail) {
+        card.addView(switchRow(I18n.tr("Thời tiết: hiện cảm giác, độ ẩm, gió, UV, AQI"), prefs.showWeatherDetail) {
             prefs.showWeatherDetail = it; changed()
         })
-        card.addView(switchRow("Lịch tháng: tuần bắt đầu từ Thứ Hai", prefs.calendarWeekStartMonday) {
+        card.addView(switchRow(I18n.tr("Lịch tháng: tuần bắt đầu từ Thứ Hai"), prefs.calendarWeekStartMonday) {
             prefs.calendarWeekStartMonday = it; changed()
         })
-        card.addView(switchRow("Lịch tháng: hiện ngày âm lịch", prefs.calendarShowLunar) {
+        card.addView(switchRow(I18n.tr("Lịch tháng: hiện ngày âm lịch"), prefs.calendarShowLunar) {
             prefs.calendarShowLunar = it; changed()
         })
     }
@@ -284,12 +285,12 @@ class AdvancedSettingsActivity : AppCompatActivity() {
     }
 
     private fun buildAddWidgetSection(root: LinearLayout) {
-        val card = card(root, "THÊM WIDGET RA MÀN HÌNH CHÍNH")
-        card.addView(note("Có 4 loại: Chính (đồng hồ + lịch + thời tiết + pin), Đồng hồ, Thời tiết chi tiết, Lịch tháng."))
-        card.addView(button("Thêm widget Đồng hồ") { pin(FoxClockWidgetProvider::class.java) })
-        card.addView(button("Thêm widget Thời tiết") { pin(FoxWeatherWidgetProvider::class.java) })
-        card.addView(button("Thêm widget Lịch tháng") { pin(FoxCalendarWidgetProvider::class.java) })
-        card.addView(button("Thêm widget Chính") { pin(FoxWidgetProvider::class.java) })
+        val card = card(root, I18n.tr("THÊM WIDGET RA MÀN HÌNH CHÍNH"))
+        card.addView(note(I18n.tr("Có 4 loại: Chính (đồng hồ + lịch + thời tiết + pin), Đồng hồ, Thời tiết chi tiết, Lịch tháng.")))
+        card.addView(button(I18n.tr("Thêm widget Đồng hồ")) { pin(FoxClockWidgetProvider::class.java) })
+        card.addView(button(I18n.tr("Thêm widget Thời tiết")) { pin(FoxWeatherWidgetProvider::class.java) })
+        card.addView(button(I18n.tr("Thêm widget Lịch tháng")) { pin(FoxCalendarWidgetProvider::class.java) })
+        card.addView(button(I18n.tr("Thêm widget Chính")) { pin(FoxWidgetProvider::class.java) })
     }
 
     private fun pin(cls: Class<*>) {
@@ -299,7 +300,7 @@ class AdvancedSettingsActivity : AppCompatActivity() {
         } else {
             Toast.makeText(
                 this,
-                "Launcher không hỗ trợ thêm tự động. Nhấn giữ màn hình chính > Tiện ích > FoxWidget.",
+                I18n.tr("Launcher không hỗ trợ thêm tự động. Nhấn giữ màn hình chính > Tiện ích > FoxWidget."),
                 Toast.LENGTH_LONG
             ).show()
         }

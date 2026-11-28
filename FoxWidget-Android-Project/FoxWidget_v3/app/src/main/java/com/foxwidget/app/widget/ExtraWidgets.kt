@@ -1,6 +1,7 @@
 package com.foxwidget.app.widget
 
 import android.app.PendingIntent
+import com.foxwidget.app.util.I18n
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
@@ -79,7 +80,7 @@ object WidgetCommon {
             val l = VietLunarCalendar.convertSolar2Lunar(
                 now.get(Calendar.DAY_OF_MONTH), now.get(Calendar.MONTH) + 1, now.get(Calendar.YEAR)
             )
-            return "Ngày ${VietLunarCalendar.getDayCanChi(now)} · Năm ${VietLunarCalendar.getYearCanChi(l.year)}"
+            return I18n.tf("Ngày {0} · Năm {1}", VietLunarCalendar.getDayCanChi(now), VietLunarCalendar.getYearCanChi(l.year))
         }
         if (prefs.showHolidayLine) return VietHolidays.nextMajor(now)
         return ""
@@ -194,15 +195,15 @@ class FoxWeatherWidgetProvider : BaseExtraWidgetProvider() {
         if (snap == null) {
             views.setTextViewText(R.id.tv_w_icon, "🌡️")
             views.setTextViewText(R.id.tv_w_temp, "${prefs.cachedTempC}°")
-            views.setTextViewText(R.id.tv_w_desc, prefs.cachedWeatherDesc)
-            views.setTextViewText(R.id.tv_w_hilo, "Chạm biểu tượng để tải thời tiết")
+            views.setTextViewText(R.id.tv_w_desc, I18n.tr(prefs.cachedWeatherDesc))
+            views.setTextViewText(R.id.tv_w_hilo, I18n.tr("Chạm biểu tượng để tải thời tiết"))
         } else {
             views.setTextViewText(R.id.tv_w_icon, WeatherHelper.emoji(snap.code, snap.isDay))
             views.setTextViewText(R.id.tv_w_temp, WeatherHelper.formatTemp(snap.tempC, unit))
             views.setTextViewText(R.id.tv_w_desc, WeatherHelper.describe(snap.code, snap.isDay))
             views.setTextViewText(
                 R.id.tv_w_hilo,
-                "Cao ${WeatherHelper.formatTemp(snap.hiC, unit)} · Thấp ${WeatherHelper.formatTemp(snap.loC, unit)}"
+                I18n.tf("Cao {0} · Thấp {1}", WeatherHelper.formatTemp(snap.hiC, unit), WeatherHelper.formatTemp(snap.loC, unit))
             )
         }
         views.setTextViewText(R.id.tv_w_loc, "📍 ${prefs.cachedLocationName}")
@@ -210,10 +211,10 @@ class FoxWeatherWidgetProvider : BaseExtraWidgetProvider() {
         // Chi tiết
         val detail = if (snap != null && prefs.showWeatherDetail && h >= 100) {
             listOfNotNull(
-                "Cảm giác ${WeatherHelper.formatTemp(snap.feelsC, unit)}",
-                if (snap.humidity >= 0) "Ẩm ${snap.humidity}%" else null,
-                "Gió ${snap.windKmh.roundToInt()} km/h",
-                if (snap.rainProb >= 0) "Mưa ${snap.rainProb}%" else null,
+                I18n.tf("Cảm giác {0}", WeatherHelper.formatTemp(snap.feelsC, unit)),
+                if (snap.humidity >= 0) I18n.tf("Ẩm {0}%", snap.humidity) else null,
+                I18n.tf("Gió {0} km/h", snap.windKmh.roundToInt()),
+                if (snap.rainProb >= 0) I18n.tf("Mưa {0}%", snap.rainProb) else null,
                 if (snap.uv >= 0) "UV ${snap.uv.roundToInt()} (${WeatherHelper.uvLabel(snap.uv)})" else null,
                 if (snap.aqi >= 0) "AQI ${snap.aqi} (${WeatherHelper.aqiLabel(snap.aqi)})" else null
             ).joinToString(" · ")
@@ -230,7 +231,7 @@ class FoxWeatherWidgetProvider : BaseExtraWidgetProvider() {
                 val vis = if (hour != null) View.VISIBLE else View.INVISIBLE
                 views.setViewVisibility(WidgetCommon.id(context, "ll_h_$i"), vis)
                 if (hour != null) {
-                    views.setTextViewText(WidgetCommon.id(context, "tv_h_t_$i"), if (i == 0) "Giờ này" else hour.label)
+                    views.setTextViewText(WidgetCommon.id(context, "tv_h_t_$i"), if (i == 0) I18n.tr("Giờ này") else hour.label)
                     views.setTextViewText(WidgetCommon.id(context, "tv_h_i_$i"), WeatherHelper.emoji(hour.code, true))
                     views.setTextViewText(
                         WidgetCommon.id(context, "tv_h_v_$i"), "${WidgetCommon.tempNum(hour.tempC, unit)}°"
@@ -265,7 +266,7 @@ class FoxWeatherWidgetProvider : BaseExtraWidgetProvider() {
             listOfNotNull(
                 if (snap.sunrise.isNotBlank()) "🌅 ${snap.sunrise}" else null,
                 if (snap.sunset.isNotBlank()) "🌇 ${snap.sunset}" else null,
-                "Cập nhật $upd · ${snap.source}"
+                I18n.tf("Cập nhật {0} · {1}", upd, snap.source)
             ).joinToString("  ")
         } else ""
         views.setTextViewText(R.id.tv_w_footer, footer)
@@ -357,7 +358,10 @@ class FoxCalendarWidgetProvider : BaseExtraWidgetProvider() {
         val startIdx = if (monday) (dow + 5) % 7 else dow - 1
         val showLunar = prefs.calendarShowLunar && h >= 220
 
-        views.setTextViewText(R.id.tv_cal_title, "Tháng $month · $year")
+        views.setTextViewText(
+            R.id.tv_cal_title,
+            if (I18n.isEnglish) "${VietLunarCalendar.EN_MONTHS[month - 1]} · $year" else I18n.tf("Tháng {0} · {1}", month, year)
+        )
         views.setTextColor(R.id.tv_cal_title, pal.primary)
         for (c in intArrayOf(R.id.tv_cal_prev, R.id.tv_cal_next, R.id.tv_cal_today)) views.setTextColor(c, pal.primary)
 
@@ -365,14 +369,14 @@ class FoxCalendarWidgetProvider : BaseExtraWidgetProvider() {
         val mid = VietLunarCalendar.convertSolar2Lunar(15, month, year)
         views.setTextViewText(
             R.id.tv_cal_sub,
-            "Năm ${VietLunarCalendar.getYearCanChi(mid.year)}" +
+            I18n.tf("Năm {0}", VietLunarCalendar.getYearCanChi(mid.year)) +
                 if (off == 0) " · ${VietLunarCalendar.formatLunarDateFull(today)}" else ""
         )
         views.setTextColor(R.id.tv_cal_sub, pal.muted)
 
         // Tên thứ
-        val labels = if (monday) arrayOf("T2", "T3", "T4", "T5", "T6", "T7", "CN")
-        else arrayOf("CN", "T2", "T3", "T4", "T5", "T6", "T7")
+        val labels = (if (monday) arrayOf("T2", "T3", "T4", "T5", "T6", "T7", "CN")
+        else arrayOf("CN", "T2", "T3", "T4", "T5", "T6", "T7")).map { I18n.tr(it) }.toTypedArray()
         for (i in 0 until 7) {
             val vid = WidgetCommon.id(context, "tv_cal_dow_$i")
             views.setTextViewText(vid, labels[i])
@@ -420,7 +424,7 @@ class FoxCalendarWidgetProvider : BaseExtraWidgetProvider() {
         // Chân: hôm nay / ngày lễ trong tháng
         val footer = if (h < 200) "" else if (off == 0) {
             val t = VietHolidays.todayLine(today)
-            if (t.isNotEmpty()) "🎉 Hôm nay: $t" else VietHolidays.nextMajor(today).let { if (it.isEmpty()) "" else "🎉 $it" }
+            if (t.isNotEmpty()) I18n.tf("🎉 Hôm nay: {0}", t) else VietHolidays.nextMajor(today).let { if (it.isEmpty()) "" else "🎉 $it" }
         } else {
             val list = mutableListOf<String>()
             for (d in 1..dim) {
